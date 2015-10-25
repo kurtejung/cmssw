@@ -465,7 +465,7 @@ def getHIPPJetVPSet():
 
 def getHIHFTrigSet():
     ret=cms.VPSet()
-    thresholds = [20, 40, 60]
+    thresholds = [20, 30, 40, 50, 60]
     for t in thresholds:
         partialPathName = "HLT_DmesonTrackingGlobalPt8_Dpt"+str(t)+"_v"
         hltDMesonGlobalTrk =  cms.PSet(
@@ -489,7 +489,7 @@ def getHIHFTrigSet():
         ret.append(hltDMesonGlobalTrk)
     thresholdsD = [60,80]
     for t in thresholdsD:
-        partialPathName = "HLT_PuAK4CaloJet"+str(t)+"Eta2p3_ForDmesons_v"
+        partialPathName = "HLT_PuAK4CaloD0Jet"+str(t)+"Eta2p1_v"
         hltDMesonJet =  cms.PSet(
                 triggerSelection = cms.string(partialPathName+"*"),
                 handlerType = cms.string("FromHLT"),
@@ -512,7 +512,7 @@ def getHIHFTrigSet():
 
     thresholds2 = [60,80]
     for t in thresholds2:
-        partialPathName = "HLT_PuAK4CaloJet"+str(t)+"Eta2p3_Forbjets_v"
+        partialPathName = "HLT_PuAK4CalobJet"+str(t)+"Eta2p1_v"
         hltbjets =  cms.PSet(
                 triggerSelection = cms.string(partialPathName+"*"),
                 handlerType = cms.string("FromHLT"),
@@ -533,9 +533,10 @@ def getHIHFTrigSet():
                 )
         ret.append(hltbjets)
 
+    '''
     thresholds3 = [60,80]
     for t in thresholds3:
-        partialPathName2 = "HLT_PuAK4CaloJet"+str(t)+"Eta2p3_Forcjets_SSVtagged_v"
+        partialPathName2 = "HLT_PuAK4CalocJet"+str(t)+"Eta2p1_v"
         hltcjets =  cms.PSet(
                 triggerSelection = cms.string(partialPathName2+"*"),
                 handlerType = cms.string("FromHLT"),
@@ -556,7 +557,7 @@ def getHIHFTrigSet():
                 )
 
         ret.append(hltcjets)
-
+    '''
     thresholdspp = [10,20,30,40,60]
     for t in thresholdspp:
         partialPathNamepp = "HLT_DmesonTrackingGlobal_Dpt"+str(t)+"_pp_v"
@@ -566,6 +567,53 @@ def getHIHFTrigSet():
                 partialPathName = cms.string(partialPathNamepp),
                 partialFilterName  = cms.string("HLTktkFilterForDmeson"),
                 dqmhistolabel  = cms.string("hltppDMeson"),
+                mainDQMDirname = cms.untracked.string(dirname),
+                singleObjectsPreselection = cms.string("1==1"),
+                singleObjectDrawables =  cms.VPSet(
+                    cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(100), min = cms.double(0), max = cms.double(100)),
+                    cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-2.5), max = cms.double(2.5)),
+                    cms.PSet (name = cms.string("phi"), expression = cms.string("phi"), bins = cms.int32(100), min = cms.double(-3.15), max = cms.double(3.15))
+                    ),
+                combinedObjectSelection =  cms.string("1==1"),
+                combinedObjectSortCriteria = cms.string("at(0).pt"),
+                combinedObjectDimension = cms.int32(1),
+                combinedObjectDrawables =  cms.VPSet()
+                )
+
+        ret.append(hltdpp)
+    
+    thresholdsbpp = [60]
+    for t in thresholdsbpp:
+        partialPathName = "HLT_AK4PFJet"+str(t)+"_BJet_Eta2p1_v"
+        hltbjets =  cms.PSet(
+                    triggerSelection = cms.string(partialPathName+"*"),
+                    handlerType = cms.string("FromHLT"),
+                    partialPathName = cms.string(partialPathName),
+                    partialFilterName  = cms.string("hltBLifetimeL3FilterCSV"),
+                    dqmhistolabel  = cms.string("hltHighPtBjets_pp"),
+                    mainDQMDirname = cms.untracked.string(dirname),
+                    singleObjectsPreselection = cms.string("1==1"),
+                    singleObjectDrawables =  cms.VPSet(
+                        cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(200), min = cms.double(40), max = cms.double(400)),
+                        cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-2.5), max = cms.double(2.5)),
+                        cms.PSet (name = cms.string("phi"), expression = cms.string("phi"), bins = cms.int32(100), min = cms.double(-3.15), max = cms.double(3.15))
+                        ),
+                    combinedObjectSelection =  cms.string("1==1"),
+                    combinedObjectSortCriteria = cms.string("at(0).pt"),
+                    combinedObjectDimension = cms.int32(1),
+                    combinedObjectDrawables =  cms.VPSet()
+                    )
+        ret.append(hltbjets)
+
+    thresholdsDjetpp = [60]
+    for t in thresholdsDjetpp:
+        partialPathNamepp = "HLT_AK4PFJet"+str(t)+"_DJet_Eta2p1_v"
+        hltdpp =  cms.PSet(
+                triggerSelection = cms.string(partialPathNamepp+"*"),
+                handlerType = cms.string("FromHLT"),
+                partialPathName = cms.string(partialPathNamepp),
+                partialFilterName  = cms.string("hltHIFullTrackFilterForDmesonjets"),
+                dqmhistolabel  = cms.string("hltDMesonJetpp"),
                 mainDQMDirname = cms.untracked.string(dirname),
                 singleObjectsPreselection = cms.string("1==1"),
                 singleObjectDrawables =  cms.VPSet(
