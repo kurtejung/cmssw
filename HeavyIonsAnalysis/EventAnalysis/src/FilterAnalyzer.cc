@@ -89,9 +89,10 @@ FilterAnalyzer::FilterAnalyzer(const edm::ParameterSet& conf)
 
 FilterAnalyzer::~FilterAnalyzer()
 {
-
+ 
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
+  delete trigflag;
 
 }
 

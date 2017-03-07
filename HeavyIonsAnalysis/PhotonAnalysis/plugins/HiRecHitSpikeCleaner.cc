@@ -183,6 +183,8 @@ HiRecHitSpikeCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Put collection of corrected SuperClusters into the event
   iEvent.put(corRecHitsEB, ebOutputCollection_);
+
+  corRecHitsEB.reset();
 }
 
 // ------------ method called once each job just before starting event loop  ------------

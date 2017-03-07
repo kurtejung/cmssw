@@ -277,6 +277,7 @@ HiJetMatchAnalyzer::~HiJetMatchAnalyzer()
 
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
+  delete jetCorrector_;
 
 }
 

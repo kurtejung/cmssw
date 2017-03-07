@@ -194,7 +194,7 @@ double pfIsoCalculator::getPfIso(const reco::GsfElectron& ele, int pfId, double 
   double eleEta = ele.eta();
   double elePhi = ele.phi();
   double TotalEt = 0.;
-
+/*
   for (edm::View<reco::PFCandidate>::const_iterator pf = candidatesView->begin(); pf != candidatesView->end(); ++pf) {
     if ( pf->particleId() != pfId )   continue;
     double pfEta = pf->eta();
@@ -226,7 +226,7 @@ double pfIsoCalculator::getPfIso(const reco::GsfElectron& ele, int pfId, double 
     TotalEt += thePt;
 
   }
-
+*/
   return TotalEt;
 
 }

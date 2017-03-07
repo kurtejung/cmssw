@@ -38,11 +38,6 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-
 #include "TMath.h"
 #include "TRandom.h"
 
@@ -60,15 +55,15 @@
 //
 // constructors and destructor
 //
-ParticleTowerProducer::ParticleTowerProducer(const edm::ParameterSet& iConfig):
-   geo_(0)
+ParticleTowerProducer::ParticleTowerProducer(const edm::ParameterSet& iConfig)
 {
    //register your products  
   src_ = consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("src"));
   useHF_ = iConfig.getParameter<bool>("useHF");
   
   produces<CaloTowerCollection>();
-  
+  //produces<bool>();  
+
   //now do what ever other initialization is needed
   random_ = new TRandom();
   PI = TMath::Pi();
@@ -83,6 +78,7 @@ ParticleTowerProducer::~ParticleTowerProducer()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
+  delete random_;
 
 }
 
@@ -95,16 +91,11 @@ ParticleTowerProducer::~ParticleTowerProducer()
 void
 ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+   
+   std::cout << "producing towers for PU" << std::endl;
    using namespace edm;
 
-   if(!geo_){
-      edm::ESHandle<CaloGeometry> pG;
-      iSetup.get<CaloGeometryRecord>().get(pG);
-      geo_ = pG.product();
-   }
-
-
-   resetTowers(iEvent, iSetup);
+   resetTowers();
 
    edm::Handle<reco::PFCandidateCollection> inputsHandle;
    iEvent.getByToken(src_, inputsHandle);
@@ -128,7 +119,7 @@ ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
    }
    
-   
+  // std::auto_ptr<bool> prod(new bool);   
    std::auto_ptr<CaloTowerCollection> prod(new CaloTowerCollection());
 
    for ( EtaPhiMap::const_iterator iter = towers_.begin();
@@ -173,9 +164,7 @@ ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
        GlobalPoint emPosition, GlobalPoint hadPosition);
    */
 
-
    iEvent.put(prod);
-
 
 }
 
@@ -183,7 +172,7 @@ ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 void 
 ParticleTowerProducer::beginJob()
 {
-  // tower edges from fast sim, used starting at index 30 for the HF
+   //tower edges from fast sim, used starting at index 30 for the HF
   const double etatow[42] = {0.000, 0.087, 0.174, 0.261, 0.348, 0.435, 0.522, 0.609, 0.696, 0.783, 0.870, 0.957, 1.044, 1.131, 1.218, 1.305, 1.392, 1.479, 1.566, 1.653, 1.740, 1.830, 1.930, 2.043, 2.172, 2.322, 2.500, 2.650, 2.853, 3.000, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889, 5.191};
   
   for(int i=0;i<42;i++){
@@ -198,7 +187,7 @@ ParticleTowerProducer::endJob() {
 }
 
 
-void ParticleTowerProducer::resetTowers(edm::Event& iEvent,const edm::EventSetup& iSetup)
+void ParticleTowerProducer::resetTowers()
 {
 
   towers_.clear();
@@ -275,7 +264,3 @@ double ParticleTowerProducer::ieta2eta(int ieta) const {
 }
 
 
-
-
-    //define this as a plug-in
-DEFINE_FWK_MODULE(ParticleTowerProducer);

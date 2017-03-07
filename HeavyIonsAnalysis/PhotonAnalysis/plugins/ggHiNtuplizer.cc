@@ -54,7 +54,7 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps):
 
 
   // initialize output TTree
-  edm::Service<TFileService> fs;
+  /*edm::Service<TFileService> fs;
   tree_ = fs->make<TTree>("EventTree", "Event data");
 
   tree_->Branch("run",    &run_);
@@ -381,14 +381,14 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps):
   tree_->Branch("muPFChIso",             &muPFChIso_);
   tree_->Branch("muPFPhoIso",            &muPFPhoIso_);
   tree_->Branch("muPFNeuIso",            &muPFNeuIso_);
-  tree_->Branch("muPFPUIso",             &muPFPUIso_);
+  tree_->Branch("muPFPUIso",             &muPFPUIso_);*/
 }
 
 void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
 
   // cleanup from previous event
-  nPUInfo_ = 0;
+  /*nPUInfo_ = 0;
   nMC_ = 0;
   nEle_ = 0;
   nPho_ = 0;
@@ -708,13 +708,16 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
       pv.SetXYZ(v->x(), v->y(), v->z());
       break;
     }
+*/
+  std::cout << "cleaned - refilling starts now" << std::endl;
 
+  //fillElectrons(e, es, pv);
+  //fillPhotons(e, es, pv);
+  //fillMuons(e, es, pv);
 
-  fillElectrons(e, es, pv);
-  fillPhotons(e, es, pv);
-  fillMuons(e, es, pv);
+  ///tree_->Fill();
 
-  tree_->Fill();
+  std::cout << "filling completed" << std::endl;
 }
 
 void ggHiNtuplizer::fillGenPileupInfo(const edm::Event& e)
@@ -895,6 +898,7 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
 {
   // Fills tree branches with reco GSF electrons.
 
+  std::cout << " inside fillElectrons" << std::endl;
   edm::Handle<edm::View<reco::GsfElectron> > gsfElectronsHandle;
   e.getByToken(gsfElectronsCollection_, gsfElectronsHandle);
 

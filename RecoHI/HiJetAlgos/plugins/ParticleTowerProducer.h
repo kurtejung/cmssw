@@ -36,7 +36,7 @@ class ParticleTowerProducer : public edm::EDProducer {
   virtual void beginJob() ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
-  void resetTowers(edm::Event& iEvent,const edm::EventSetup& iSetup);
+  void resetTowers();
   DetId getNearestTower(const reco::PFCandidate & in) const;
   DetId getNearestTower(double eta, double phi) const;
   //  uint32_t denseIndex(int ieta, int iphi, double eta) const;
@@ -56,9 +56,6 @@ class ParticleTowerProducer : public edm::EDProducer {
   double PI;
   TRandom* random_;
   
-  CaloGeometry const *  geo_;                       // geometry
-
-
   static const double etatow[];
   static const double etacent[];
   double etaedge[42];

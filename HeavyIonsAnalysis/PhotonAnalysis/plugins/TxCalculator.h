@@ -29,6 +29,7 @@ class TxCalculator
   public:
   
    TxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel,std::string trackQuality_) ;
+   ~TxCalculator(){ delete theDice; }
   
    double getTx(const reco::Photon clus, double i,double threshold, double innerDR=0,double effRatio=2);
    double getCTx(const reco::Photon clus, double i,double threshold, double innerDR=0, double effRatio=2);

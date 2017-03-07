@@ -462,6 +462,7 @@ HiEvtAnalyzer::beginJob()
 void
 HiEvtAnalyzer::endJob()
 {
+	delete hiEvtPlane;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
