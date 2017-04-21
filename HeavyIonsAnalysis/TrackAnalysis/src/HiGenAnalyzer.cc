@@ -46,7 +46,9 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h" 
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/HeavyIon.h"
 
@@ -89,6 +91,10 @@ struct HydjetEvent{
   std::vector<Int_t> chg;
   std::vector<Int_t> sube;
   std::vector<Int_t> sta;
+  std::vector<Float_t> dxy;
+  std::vector<Float_t> dxyErr;
+  std::vector<Float_t> dz;
+  std::vector<Float_t> dzErr;
   std::vector<Int_t> matchingID;
   std::vector<Int_t> nMothers;
   std::vector<std::vector<Int_t> > motherIndex;
@@ -115,11 +121,14 @@ private:
   virtual void endJob() ;
   vector<int> getMotherIdx(edm::Handle<reco::GenParticleCollection> parts, const reco::GenParticle);
   vector<int> getDaughterIdx(edm::Handle<reco::GenParticleCollection> parts, const reco::GenParticle);
+  float dxyError(reco::GenParticle p, reco::Vertex vtx);
+  float dzError(reco::GenParticle p, reco::Vertex vtx);
 
   // ----------member data ---------------------------
 
   //std::string g4Label;
   edm::EDGetTokenT<edm::SimVertexContainer> g4Label;
+  edm::EDGetTokenT<reco::VertexCollection> pvToken;
 
   TTree* hydjetTree_;
   HydjetEvent hev_;
@@ -186,6 +195,7 @@ HiGenAnalyzer::HiGenAnalyzer(const edm::ParameterSet& iConfig)
   if(doVertex_){
     g4Label = consumes<edm::SimVertexContainer>(iConfig.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits"));
   }
+  pvToken = consumes<reco::VertexCollection>(iConfig.getUntrackedParameter<edm::InputTag>("vertexColl",edm::InputTag("hiSelectedVertex"))); 
 
 }
 
@@ -216,7 +226,7 @@ vector<int> HiGenAnalyzer::getMotherIdx(edm::Handle<reco::GenParticleCollection>
 	if(p.pdgId() == motherDaughterPDGsToSave_.at(ipdg)) saveFlag=true;
       }
       if(motherDaughterPDGsToSave_.size()>0 && saveFlag!=true) continue; //save all particles in vector unless vector is empty, then save all particles
-      if (p.status()==3) continue; //don't match to the initial collision particles
+      //if (p.status()==3) continue; //don't match to the initial collision particles
       for (unsigned int idx=0; idx<p.numberOfDaughters(); idx++){
 	//if (p.daughter(idx)->pt()*p.daughter(idx)->eta()*p.daughter(idx)->phi() == pin.pt()*pin.eta()*pin.phi()) motherArr.push_back(i);
 	if(fabs(p.daughter(idx)->pt()-pin.pt())<0.001 && fabs(p.daughter(idx)->eta()-pin.eta())<0.001 && fabs(p.daughter(idx)->phi()-pin.phi())<0.001) motherArr.push_back(i);
@@ -243,7 +253,7 @@ vector<int> HiGenAnalyzer::getDaughterIdx(edm::Handle<reco::GenParticleCollectio
 	if(p.pdgId() == motherDaughterPDGsToSave_.at(ipdg)) saveFlag=true;
       }
       if(motherDaughterPDGsToSave_.size()>0 && saveFlag!=true) continue; //save all particles in vector unless vector is empty, then save all particles
-      if (p.status()==3) continue; //don't match to the initial collision particles
+      //if (p.status()==3) continue; //don't match to the initial collision particles
       for(unsigned int idx=0; idx<p.numberOfMothers(); idx++){
 	//if (p.mother(idx)->pt()*p.mother(idx)->eta()*p.mother(idx)->phi() == pin.pt()*pin.eta()*pin.phi()) daughterArr.push_back(i);
 	if(fabs(p.mother(idx)->pt()-pin.pt())<0.001 && fabs(p.mother(idx)->eta()-pin.eta())<0.001 && fabs(p.mother(idx)->phi()-pin.phi())<0.001) daughterArr.push_back(i);
@@ -268,6 +278,10 @@ HiGenAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   hev_.chg.clear();
   hev_.sube.clear();
   hev_.sta.clear();
+  hev_.dxy.clear();
+  hev_.dxyErr.clear();
+  hev_.dz.clear();
+  hev_.dzErr.clear();
   hev_.matchingID.clear();
   hev_.nMothers.clear();
   hev_.motherIndex.clear();
@@ -353,6 +367,8 @@ HiGenAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }else{
     edm::Handle<reco::GenParticleCollection> parts;
     iEvent.getByToken(genParticleSrc_,parts);
+    edm::Handle<reco::VertexCollection> pvHandle;
+    iEvent.getByToken(pvToken,pvHandle);
     for(UInt_t i = 0; i < parts->size(); ++i){
       const reco::GenParticle& p = (*parts)[i];
       if (stableOnly_ && p.status()!=1) continue;
@@ -365,6 +381,14 @@ HiGenAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       hev_.chg.push_back( p.charge());
       hev_.sube.push_back( p.collisionId());
       hev_.sta.push_back( p.status());
+
+      reco::Vertex primVtx = pvHandle->at(0);
+      float dxy = ((-1*(p.vx() - primVtx.x())*p.py() + (p.vy() - primVtx.y())*p.px())/p.pt());
+      float dz = p.vz() - primVtx.z() - ((p.vx() - primVtx.x())*p.px() + (p.vy() - primVtx.y())*p.py())/p.pt()*p.pz()/p.pt();
+      hev_.dxy.push_back(dxy);
+      hev_.dz.push_back(dz);
+      hev_.dxyErr.push_back(dxyError(p, primVtx));
+      hev_.dzErr.push_back(dzError(p, primVtx));
       hev_.matchingID.push_back( i);
       hev_.nMothers.push_back( p.numberOfMothers());
       vector<int> tempMothers = getMotherIdx(parts, p);
@@ -478,6 +502,12 @@ HiGenAnalyzer::beginJob()
     hydjetTree_->Branch("phi",&hev_.phi);
     hydjetTree_->Branch("pdg",&hev_.pdg);
     hydjetTree_->Branch("chg",&hev_.chg);
+    if(!useHepMCProduct_){
+	    hydjetTree_->Branch("dxy",&hev_.dxy);
+	    hydjetTree_->Branch("dxyErr",&hev_.dxyErr);
+	    hydjetTree_->Branch("dz",&hev_.dz);
+	    hydjetTree_->Branch("dzErr",&hev_.dzErr);
+    }
     hydjetTree_->Branch("matchingID",&hev_.matchingID);
     hydjetTree_->Branch("nMothers",&hev_.nMothers);
     hydjetTree_->Branch("motherIdx",&hev_.motherIndex);
@@ -498,6 +528,15 @@ HiGenAnalyzer::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void
 HiGenAnalyzer::endJob() {
+}
+
+float HiGenAnalyzer::dzError(reco::GenParticle p, reco::Vertex vtx){
+	//return (float)vtx.zError();
+	return 0;
+}
+float HiGenAnalyzer::dxyError(reco::GenParticle p, reco::Vertex vtx){
+	//return (float)sqrt(pow(vtx.xError(),2)+pow(vtx.yError(),2));;
+	return 0;
 }
 
 //define this as a plug-in

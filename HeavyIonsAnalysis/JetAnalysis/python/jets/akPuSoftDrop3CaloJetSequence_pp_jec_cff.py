@@ -45,7 +45,7 @@ akPuSoftDrop3Caloparton = patJetPartonMatch.clone(src = cms.InputTag("akPuSoftDr
 akPuSoftDrop3CaloPatJetFlavourAssociationLegacy = akPuSoftDrop3CalobTagger.PatJetFlavourAssociationLegacy
 akPuSoftDrop3CaloPatJetPartons = akPuSoftDrop3CalobTagger.PatJetPartons
 akPuSoftDrop3CaloJetTracksAssociatorAtVertex = akPuSoftDrop3CalobTagger.JetTracksAssociatorAtVertex
-akPuSoftDrop3CaloJetTracksAssociatorAtVertex.tracks = cms.InputTag("highPurityTracks")
+#akPuSoftDrop3CaloJetTracksAssociatorAtVertex.tracks = cms.InputTag("highPurityTracks")
 akPuSoftDrop3CaloSimpleSecondaryVertexHighEffBJetTags = akPuSoftDrop3CalobTagger.SimpleSecondaryVertexHighEffBJetTags
 akPuSoftDrop3CaloSimpleSecondaryVertexHighPurBJetTags = akPuSoftDrop3CalobTagger.SimpleSecondaryVertexHighPurBJetTags
 akPuSoftDrop3CaloCombinedSecondaryVertexBJetTags = akPuSoftDrop3CalobTagger.CombinedSecondaryVertexBJetTags
@@ -185,12 +185,12 @@ akPuSoftDrop3CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag(
                                                              trackTag = cms.InputTag("generalTracks"),
                                                              fillGenJets = True,
                                                              isMC = True,
-							     doSubEvent = True,
-                                                             useHepMC = cms.untracked.bool(False),
+							     doSubEvent = False,
+                                                             useHepMC = cms.untracked.bool(True),
 							     genParticles = cms.untracked.InputTag("genParticles"),
 							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
-                                                             doLifeTimeTaggingExtras = cms.untracked.bool(False),
+                                                             doLifeTimeTaggingExtras = cms.untracked.bool(True),
                                                              bTagJetName = cms.untracked.string("akPuSoftDrop3Calo"),
                                                              jetName = cms.untracked.string("akPuSoftDrop3Calo"),
                                                              genPtMin = cms.untracked.double(5),
@@ -199,7 +199,7 @@ akPuSoftDrop3CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag(
 							     doSubJets = cms.untracked.bool(True),
                                                              doGenSubJets = cms.untracked.bool(False),     
                                                              subjetGenTag = cms.untracked.InputTag("akSoftDrop3GenJets"),
-                                                             doGenTaus = True
+                                                             doGenTaus = False
                                                              )
 
 akPuSoftDrop3CaloJetSequence_mc = cms.Sequence(
@@ -223,7 +223,7 @@ akPuSoftDrop3CaloJetSequence_mc = cms.Sequence(
                                                   *
                                                   akPuSoftDrop3CaloJetBtagging
                                                   *
-                                                  akPuSoftDrop3CaloNjettiness
+                                                  akPuSoftDrop3CaloNjettiness #No constituents for calo jets in pp. Must be removed for pp calo jets but I'm not sure how to do this transparently (Marta)
                                                   *
                                                   akPuSoftDrop3CalopatJetsWithBtagging
                                                   *

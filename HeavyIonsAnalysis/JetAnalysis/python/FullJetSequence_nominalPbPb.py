@@ -44,6 +44,14 @@ highPurityTracks = cms.EDFilter("TrackSelector",
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
 offlinePrimaryVertices.TrackLabel = 'highPurityTracks'
 
+# Redo Vertexing with IVF vertex info
+# Doc here: https://twiki.cern.ch/twiki/pub/CMS/CSVIVF/IVFcodeOverview.pdf
+from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import *
+inclusiveVertexFinder.primaryVertices = cms.InputTag("offlinePrimaryVertices")
+inclusiveVertexFinder.tracks = cms.InputTag("highPurityTracks")
+trackVertexArbitrator.primaryVertices = cms.InputTag("offlinePrimaryVertices")
+trackVertexArbitrator.tracks = cms.InputTag("highPurityTracks")
+
 jetSequences = cms.Sequence(
     voronoiBackgroundPF+
     voronoiBackgroundCalo+
@@ -51,12 +59,12 @@ jetSequences = cms.Sequence(
     kt4PFJets +
     hiFJRhoProducer +
     hiFJGridEmptyAreaCalculator +
-
-    akPu2CaloJets +
-    akPu2PFJets +
-    akVs2CaloJets +
-    akVs2PFJets +
-    akCs2PFJets +
+	
+    #akPu2CaloJets +
+    #akPu2PFJets +
+    #akVs2CaloJets +
+    #akVs2PFJets +
+    #akCs2PFJets +
 
     #akPu3CaloJets +
     #akPu3PFJets +
@@ -70,46 +78,47 @@ jetSequences = cms.Sequence(
     akVs4PFJets +
     akCs4PFJets +
 
-    akPu5CaloJets +
-    akPu5PFJets +
-    akVs5CaloJets +
-    akVs5PFJets +
-    akCs5PFJets +
+    #akPu5CaloJets +
+    #akPu5PFJets +
+    #akVs5CaloJets +
+    #akVs5PFJets +
+    #akCs5PFJets +
 
     akCsFilter4PFJets +
-    akCsFilter5PFJets +
+    #akCsFilter5PFJets +
     akCsSoftDrop4PFJets +
-    akCsSoftDrop5PFJets +
+    #akCsSoftDrop5PFJets +
 
     highPurityTracks +
     offlinePrimaryVertices +
+    inclusiveVertexing +
 
-    akPu2CaloJetSequence +
-    akVs2CaloJetSequence +
-    akVs2PFJetSequence +
-    akPu2PFJetSequence +
-    akCs2PFJetSequence +
+    #akPu2CaloJetSequence +
+    #akVs2CaloJetSequence +
+    #akVs2PFJetSequence +
+    #akPu2PFJetSequence +
+    #akCs2PFJetSequence +
 
     akPu3CaloJetSequence +
-    akVs3CaloJetSequence +
-    akVs3PFJetSequence +
+    #akVs3CaloJetSequence +
+    #akVs3PFJetSequence +
     akPu3PFJetSequence +
     akCs3PFJetSequence +
 
     akPu4CaloJetSequence +
-    akVs4CaloJetSequence +
-    akVs4PFJetSequence +
+    #akVs4CaloJetSequence +
+    #akVs4PFJetSequence +
     akPu4PFJetSequence +
     akCs4PFJetSequence +
 
-    akPu5CaloJetSequence +
-    akVs5CaloJetSequence +
-    akVs5PFJetSequence +
-    akPu5PFJetSequence +
-    akCs5PFJetSequence +
+    #akPu5CaloJetSequence +
+    #akVs5CaloJetSequence +
+    #akVs5PFJetSequence +
+    #akPu5PFJetSequence +
+    #akCs5PFJetSequence +
 
     akCsFilter4PFJetSequence +
-    akCsFilter5PFJetSequence +
-    akCsSoftDrop4PFJetSequence +
-    akCsSoftDrop5PFJetSequence
+    #akCsFilter5PFJetSequence +
+    akCsSoftDrop4PFJetSequence #+
+    #akCsSoftDrop5PFJetSequence
 )

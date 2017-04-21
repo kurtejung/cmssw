@@ -5,8 +5,9 @@
 
 import FWCore.ParameterSet.Config as cms
 process = cms.Process('HiForest')
-process.options = cms.untracked.PSet()
-
+process.options = cms.untracked.PSet( 
+#wantSummary = cms.untracked.bool(True) 
+)
 #####################################################################################
 # HiForest labelling info
 #####################################################################################
@@ -26,8 +27,13 @@ process.HiForest.HiForestVersion = cms.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-                                "root://eoscms.cern.ch//eos/cms/store/cmst3/group/hintt/CMSSW_7_5_8_patch2/TTbar/RECO/Events_1.root"
-                            )
+                                #"root://cmsxrootd.fnal.gov//store/himc/HINppWinter16DR/Pythia6_Dijet80_pp502/AODSIM/75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/30000/1AE52C73-3D0E-E611-87DD-02163E0145EC.root"
+                              '/store/himc/HINppWinter16DR/Pythia6_bJet120_pp502/AODSIM/75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/00000/5270484A-9D07-E611-B734-34E6D7BDDEE8.root' 
+			    #"/store/himc/HINppWinter16DR/Pythia6_Dijet170_pp502/AODSIM/75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/30000/D0664C0C-AB0F-E611-B3E8-0025901D4D54.root"
+			    ),
+			    inputCommands=cms.untracked.vstring(
+				#'drop recoVertexs_inclusiveSecondaryVertices__RECO'  
+			    )
 )
 
 # Number of events we want to process, -1 = all events
@@ -54,6 +60,22 @@ process.HiForest.GlobalTagLabel = process.GlobalTag.globaltag
 from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import overrideJEC_pp5020
 process = overrideJEC_pp5020(process)
 
+#recalibrating JP tagger for Pythia 6 MC here
+#from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
+#process.jptags = cms.ESSource("PoolDBESSource",CondDBSetup,
+#		connect = cms.string('sqlite_file:btagnew_new_pythia6MC.db'),
+#		toGet = cms.VPSet(cms.PSet(
+#				record = cms.string('BTagTrackProbability2DRcd'),
+#				tag = cms.string('probBTagPDF2D_tag_mc')
+#				),
+#			cms.PSet(
+#				record = cms.string('BTagTrackProbability3DRcd'),
+#				tag = cms.string('probBTagPDF3D_tag_mc')
+#				)
+#			)
+#		)
+#process.es_prefer_jptags = cms.ESPrefer("PoolDBESSource","jptags")
+
 #####################################################################################
 # Define tree output
 #####################################################################################
@@ -79,7 +101,17 @@ process.load("HeavyIonsAnalysis.JetAnalysis.FullJetSequence_nominalPP")
 # Use this version for JEC
 #process.load("HeavyIonsAnalysis.JetAnalysis.FullJetSequence_JECPP")
 
-#####################################################################################
+##############################################################
+# Redo Vertexing with IVF vertex info
+# Doc here: https://twiki.cern.ch/twiki/pub/CMS/CSVIVF/IVFcodeOverview.pdf
+process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
+process.inclusiveVertexFinder.primaryVertices = cms.InputTag("offlinePrimaryVerticesWithBS")
+process.trackVertexArbitrator.primaryVertices = cms.InputTag("offlinePrimaryVerticesWithBS")
+
+#adjust vertexing filter to get more c-jets out
+#process.inclusiveVertexFinder.vertexMinDLen2DSig = cms.double(1.25) #2.5 sigma for b tagger, default for C tagger was put on 0. However, lifetime D mesons on average about half of lifetime of B meson -> half of significance
+#process.inclusiveVertexFinder.vertexMinDLenSig = cms.double(0.25) #0.5 sigma for b tagger, default for C tagger was put on 0. However, lifetime D mesons on average about half of lifetime of B meson -> half of significance
+##############################################################
 
 ############################
 # Event Analysis
@@ -95,6 +127,9 @@ process.hiEvtAnalyzer.doHiMC = cms.bool(False) #HI specific MC info
 process.load('HeavyIonsAnalysis.JetAnalysis.HiGenAnalyzer_cfi')
 process.HiGenParticleAna.genParticleSrc = cms.untracked.InputTag("genParticles")
 process.HiGenParticleAna.doHI = False
+
+process.HiGenParticleAna.stableOnly = cms.untracked.bool(False)
+
 process.load('HeavyIonsAnalysis.EventAnalysis.runanalyzer_cff')
 process.load("HeavyIonsAnalysis.JetAnalysis.pfcandAnalyzer_pp_cfi")
 process.pfcandAnalyzer.skipCharged = False
@@ -103,6 +138,14 @@ process.pfcandAnalyzer.pfCandidateLabel = cms.InputTag("particleFlow")
 process.pfcandAnalyzer.doVS = cms.untracked.bool(False)
 process.pfcandAnalyzer.doUEraw_ = cms.untracked.bool(False)
 process.pfcandAnalyzer.genLabel = cms.InputTag("genParticles")
+
+process.load("HeavyIonsAnalysis.JetAnalysis.pfcandAnalyzerCS_cfi")
+process.pfcandAnalyzerCS.skipCharged = False
+process.pfcandAnalyzerCS.pfPtMin = 0
+process.pfcandAnalyzerCS.pfCandidateLabel = cms.InputTag("particleFlow")
+process.pfcandAnalyzerCS.doVS = cms.untracked.bool(False)
+process.pfcandAnalyzerCS.doUEraw_ = cms.untracked.bool(False)
+process.pfcandAnalyzerCS.genLabel = cms.InputTag("genParticles")
 
 #####################################################################################
 
@@ -161,15 +204,17 @@ process.load("HeavyIonsAnalysis.VectorBosonAnalysis.tupelSequence_pp_mc_cff")
 #########################
 # Main analysis list
 #########################
+
 process.ana_step = cms.Path(process.hltanalysis *
                             process.hiEvtAnalyzer *
                             process.HiGenParticleAna*
-                            process.jetSequences +
-                            process.egmGsfElectronIDSequence + #Should be added in the path for VID module
-                            process.ggHiNtuplizer +
-                            process.ggHiNtuplizerGED +
+			    process.jetSequences +
+#                            process.egmGsfElectronIDSequence + #Should be added in the path for VID module
+#                            process.ggHiNtuplizer +
+#                            process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
-                            process.HiForest +
+			    process.pfcandAnalyzerCS +
+			    process.HiForest +
 			    process.trackSequencesPP +
                             process.runAnalyzer +
                             process.tupelPatSequence

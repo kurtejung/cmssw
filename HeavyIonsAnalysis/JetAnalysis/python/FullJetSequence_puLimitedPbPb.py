@@ -58,6 +58,13 @@ akPu3CaloJets.minimumTowersFraction = cms.double(0.)
 akPu4CaloJets.minimumTowersFraction = cms.double(0.)
 akPu5CaloJets.minimumTowersFraction = cms.double(0.)
 
+# Redo Vertexing with IVF vertex info
+# Doc here: https://twiki.cern.ch/twiki/pub/CMS/CSVIVF/IVFcodeOverview.pdf
+from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import *
+inclusiveVertexFinder.primaryVertices = cms.InputTag("offlinePrimaryVertices")
+inclusiveVertexFinder.tracks = cms.InputTag("highPurityTracks")
+trackVertexArbitrator.primaryVertices = cms.InputTag("offlinePrimaryVertices")
+trackVertexArbitrator.tracks = cms.InputTag("highPurityTracks")
 
 jetSequences = cms.Sequence(
     PFTowers + 
@@ -102,6 +109,7 @@ jetSequences = cms.Sequence(
 
     highPurityTracks +
     offlinePrimaryVertices +
+    inclusiveVertexing +
 
     #akPu2CaloJetSequence +
     #akVs2CaloJetSequence +

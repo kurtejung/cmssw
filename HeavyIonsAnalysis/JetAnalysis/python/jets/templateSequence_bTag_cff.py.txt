@@ -45,7 +45,7 @@ ALGO_SUB_GROOM_RADIUS_OBJECT_parton = patJetPartonMatch.clone(src = cms.InputTag
 ALGO_SUB_GROOM_RADIUS_OBJECT_PatJetFlavourAssociationLegacy = ALGO_SUB_GROOM_RADIUS_OBJECT_bTagger.PatJetFlavourAssociationLegacy
 ALGO_SUB_GROOM_RADIUS_OBJECT_PatJetPartons = ALGO_SUB_GROOM_RADIUS_OBJECT_bTagger.PatJetPartons
 ALGO_SUB_GROOM_RADIUS_OBJECT_JetTracksAssociatorAtVertex = ALGO_SUB_GROOM_RADIUS_OBJECT_bTagger.JetTracksAssociatorAtVertex
-ALGO_SUB_GROOM_RADIUS_OBJECT_JetTracksAssociatorAtVertex.tracks = cms.InputTag("highPurityTracks")
+#ALGO_SUB_GROOM_RADIUS_OBJECT_JetTracksAssociatorAtVertex.tracks = cms.InputTag("highPurityTracks")
 ALGO_SUB_GROOM_RADIUS_OBJECT_SimpleSecondaryVertexHighEffBJetTags = ALGO_SUB_GROOM_RADIUS_OBJECT_bTagger.SimpleSecondaryVertexHighEffBJetTags
 ALGO_SUB_GROOM_RADIUS_OBJECT_SimpleSecondaryVertexHighPurBJetTags = ALGO_SUB_GROOM_RADIUS_OBJECT_bTagger.SimpleSecondaryVertexHighPurBJetTags
 ALGO_SUB_GROOM_RADIUS_OBJECT_CombinedSecondaryVertexBJetTags = ALGO_SUB_GROOM_RADIUS_OBJECT_bTagger.CombinedSecondaryVertexBJetTags
@@ -185,12 +185,12 @@ ALGO_SUB_GROOM_RADIUS_OBJECT_JetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = c
                                                              trackTag = cms.InputTag("TRACKS"),
                                                              fillGenJets = ISMC,
                                                              isMC = ISMC,
-							     doSubEvent = ISMC,
-                                                             useHepMC = cms.untracked.bool(False),
+							     doSubEvent = False,
+                                                             useHepMC = cms.untracked.bool(True),
 							     genParticles = cms.untracked.InputTag("genParticles"),
 							     eventInfoTag = cms.InputTag("EVENTINFOTAG"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
-                                                             doLifeTimeTaggingExtras = cms.untracked.bool(False),
+                                                             doLifeTimeTaggingExtras = cms.untracked.bool(True),
                                                              bTagJetName = cms.untracked.string("ALGO_SUB_GROOM_RADIUS_OBJECT_"),
                                                              jetName = cms.untracked.string("ALGO_SUB_GROOM_RADIUS_OBJECT_"),
                                                              genPtMin = cms.untracked.double(5),
@@ -199,7 +199,7 @@ ALGO_SUB_GROOM_RADIUS_OBJECT_JetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = c
 							     doSubJets = cms.untracked.bool(DOSUBJETS_),
                                                              doGenSubJets = cms.untracked.bool(DOGENSUBJETS_),     
                                                              subjetGenTag = cms.untracked.InputTag("ALGO_GROOM_RADIUS_GenJets"),
-                                                             doGenTaus = ISMC
+                                                             doGenTaus = False
                                                              )
 
 ALGO_SUB_GROOM_RADIUS_OBJECT_JetSequence_mc = cms.Sequence(

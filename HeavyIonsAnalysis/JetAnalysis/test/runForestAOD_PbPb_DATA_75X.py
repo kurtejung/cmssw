@@ -25,15 +25,14 @@ process.HiForest.HiForestVersion = cms.string(version)
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-                                #"/store/group/phys_heavyions/velicanu/reco/HIPhysicsMinBiasUPC/v0/000/262/548/recoExpress_84.root"
-                            'file:samples/PbPb_DATA_AOD.root'
-				)
+                                "/store/hidata/HIRun2015/HIHardProbes/AOD/PromptReco-v1/000/262/620/00000/70C89582-61A7-E511-8324-02163E0142E0.root"
+                            )
 )
 
 
 # Number of events we want to process, -1 = all events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10))
+    input = cms.untracked.int32(20))
 
 
 #####################################################################################
@@ -74,13 +73,24 @@ process.TFileService = cms.Service("TFileService",
 #############################
 # Jets
 #############################
+<<<<<<< Updated upstream
 
 #require the pu algo to use a certain threshold of towers for bg subtraction
 #process.load("HeavyIonsAnalysis.JetAnalysis.FullJetSequence_puLimitedDataPbPb")
 #or don't do that
 process.load("HeavyIonsAnalysis.JetAnalysis.FullJetSequence_puUnlimitedDataPbPb")
 
-#####################################################################################
+##############################################################
+# Redo Vertexing with IVF vertex info
+# Doc here: https://twiki.cern.ch/twiki/pub/CMS/CSVIVF/IVFcodeOverview.pdf
+process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
+process.inclusiveVertexFinder.primaryVertices = cms.InputTag("offlinePrimaryVerticesWithBS")
+process.trackVertexArbitrator.primaryVertices = cms.InputTag("offlinePrimaryVerticesWithBS")
+
+#adjust vertexing filter to get more c-jets out
+process.inclusiveVertexFinder.vertexMinDLen2DSig = cms.double(1.25) #2.5 sigma for b tagger, default for C tagger was put on 0. However, lifetime D mesons on average about half of lifetime of B meson -> half of significance
+process.inclusiveVertexFinder.vertexMinDLenSig = cms.double(0.25) #0.5 sigma for b tagger, default for C tagger was put on 0. However, lifetime D mesons on average about half of lifetime of B meson -> half of significance
+##############################################################
 
 ############################
 # Event Analysis
@@ -120,7 +130,6 @@ process.ggHiNtuplizerGED = process.ggHiNtuplizer.clone(recoPhotonSrc = cms.Input
                                                        recoPhotonHiIsolationMap = cms.InputTag('photonIsolationHIProducerGED')
 )
 
-
 ####################################################################################
 
 #####################
@@ -153,11 +162,12 @@ process.ana_step = cms.Path(process.hltanalysis *
                             process.centralityBin *
                             process.hiEvtAnalyzer*
                             process.jetSequences +
-                            process.ggHiNtuplizer +
-                            process.ggHiNtuplizerGED +
+                            #process.ggHiNtuplizer +
+                            #process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
                             process.pfcandAnalyzerCS +
-                            process.HiForest +
+                            #process.DfinderSequence +
+			    process.HiForest +
                             process.trackSequencesPbPb +
                             process.hcalNoise #+
                             #process.tupelPatSequence
@@ -212,3 +222,15 @@ process.uetable = cms.ESSource("PoolDBESSource",
 )
 process.es_prefer_uetable = cms.ESPrefer('PoolDBESSource','uetable')
 ##########################################UE##########################################
+
+#trigger filtering!
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+process.hltfilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+process.hltfilter.HLTPaths = ["HLT_HIPuAK4CaloJet*_Eta5p1_v*"]
+process.superFilterPath = cms.Path(process.hltfilter)
+process.skimanalysis.superFilters = cms.vstring("superFilterPath")
+##filter all path with the production filter sequence
+for path in process.paths:
+   getattr(process,path)._seq = process.hltfilter * getattr(process,path)._seq
+
+

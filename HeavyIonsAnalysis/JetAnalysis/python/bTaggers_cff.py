@@ -4,7 +4,6 @@ import FWCore.ParameterSet.Config as cms
 from HeavyIonsAnalysis.JetAnalysis.patHeavyIonSequences_cff import *
 from PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff import *
 
-
 #load all the b-tagging algorithms
 from RecoBTag.SecondaryVertex.secondaryVertexNegativeTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.negativeSimpleSecondaryVertexHighEffBJetTags_cfi import *
@@ -25,8 +24,11 @@ class bTaggers:
     def __init__(self,jetname,rParam):
         self.JetTracksAssociatorAtVertex = ak5JetTracksAssociatorAtVertex.clone()
         self.JetTracksAssociatorAtVertex.jets = cms.InputTag(jetname+"Jets")
-        self.JetTracksAssociatorAtVertex.tracks = cms.InputTag("hiGeneralTracks")
-        self.ImpactParameterTagInfos = impactParameterTagInfos.clone()
+	##for pp / pPb
+	self.JetTracksAssociatorAtVertex.tracks = cms.InputTag("generalTracks")
+	##for PbPb
+        #self.JetTracksAssociatorAtVertex.tracks = cms.InputTag("highPurityTracks")
+	self.ImpactParameterTagInfos = impactParameterTagInfos.clone()
         self.ImpactParameterTagInfos.jetTracks = cms.InputTag(jetname+"JetTracksAssociatorAtVertex")
         self.ImpactParameterTagInfos.primaryVertex = cms.InputTag("offlinePrimaryVertices")
         self.TrackCountingHighEffBJetTags          = trackCountingHighEffBJetTags.clone()
@@ -38,9 +40,17 @@ class bTaggers:
         self.JetBProbabilityBJetTags               = jetBProbabilityBJetTags.clone()
         self.JetBProbabilityBJetTags.tagInfos      = cms.VInputTag(cms.InputTag(jetname+"ImpactParameterTagInfos"))
 
-        self.SecondaryVertexTagInfos                     = secondaryVertexTagInfos.clone()
-        self.SecondaryVertexTagInfos.trackIPTagInfos     = cms.InputTag(jetname+"ImpactParameterTagInfos")
-        #self.SimpleSecondaryVertexBJetTags               = simpleSecondaryVertexBJetTags.clone()
+	##switching to IVF input
+	self.SecondaryVertexTagInfos                     = inclusiveSecondaryVertexFinderTagInfos.clone()
+	self.SecondaryVertexTagInfos.vertexCuts.distSig2dMin = 1.5
+	self.SecondaryVertexTagInfos.trackIPTagInfos     = cms.InputTag(jetname+"ImpactParameterTagInfos")
+	self.SecondaryVertexTagInfos.extSVDeltaRToJet = cms.double(0.3)
+
+	#old SV Input
+	#self.SecondaryVertexTagInfos                     = secondaryVertexTagInfos.clone()
+        #self.SecondaryVertexTagInfos.trackIPTagInfos     = cms.InputTag(jetname+"ImpactParameterTagInfos")
+
+	#self.SimpleSecondaryVertexBJetTags               = simpleSecondaryVertexBJetTags.clone()
         #self.SimpleSecondaryVertexBJetTags.tagInfos      = cms.VInputTag(cms.InputTag(jetname+"SecondaryVertexTagInfos"))
         self.CombinedSecondaryVertexBJetTags             = combinedSecondaryVertexBJetTags.clone()
         self.CombinedSecondaryVertexBJetTags.tagInfos    = cms.VInputTag(cms.InputTag(jetname+"ImpactParameterTagInfos"),
@@ -51,8 +61,6 @@ class bTaggers:
 
 
         # secondary vertex b-tag
-        self.SecondaryVertexTagInfos                     = secondaryVertexTagInfos.clone()
-        self.SecondaryVertexTagInfos.trackIPTagInfos     = cms.InputTag(jetname+"ImpactParameterTagInfos")
         self.SimpleSecondaryVertexHighEffBJetTags               = simpleSecondaryVertexHighEffBJetTags.clone()
         self.SimpleSecondaryVertexHighEffBJetTags.tagInfos      = cms.VInputTag(cms.InputTag(jetname+"SecondaryVertexTagInfos"))
         self.SimpleSecondaryVertexHighPurBJetTags               = simpleSecondaryVertexHighPurBJetTags.clone()

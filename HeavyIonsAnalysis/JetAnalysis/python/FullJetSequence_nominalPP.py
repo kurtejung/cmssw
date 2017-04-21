@@ -52,15 +52,31 @@ from RecoHI.HiJetAlgos.HiGenJets_cff import *
 from HeavyIonsAnalysis.JetAnalysis.makePartons_cff import myPartons
 
 from HeavyIonsAnalysis.JetAnalysis.jets.ak3PFJetSequence_pp_mc_cff import *
+from HeavyIonsAnalysis.JetAnalysis.jets.akPu3PFJetSequence_pp_mc_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.ak4PFJetSequence_pp_mc_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.ak5PFJetSequence_pp_mc_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.ak4CaloJetSequence_pp_mc_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.akSoftDrop4PFJetSequence_pp_mc_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.akSoftDrop5PFJetSequence_pp_mc_cff import *
+from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import *
 
 highPurityTracks = cms.EDFilter("TrackSelector",
                                 src = cms.InputTag("generalTracks"),
                                 cut = cms.string('quality("highPurity")')
+)
+
+from RecoHI.HiJetAlgos.HiPFJetParameters_cff import *
+#pseudo towers for noise suppression background subtraction
+PFTowers = cms.EDProducer("ParticleTowerProducer",
+                          src = cms.InputTag("particleFlow"),
+                          useHF = cms.bool(False)
+                          )
+
+akPu3PFJets = ak3PFJets.clone(puPtMin = cms.double(15),
+		doPUOffsetCorr = cms.bool(True),
+		jetType = cms.string('BasicJet'),
+		doAreaFastjet = cms.bool(False),
+		src = cms.InputTag("PFTowers")
 )
 
 # Other radii jets and calo jets need to be reconstructed
@@ -71,6 +87,8 @@ jetSequences = cms.Sequence(
     ak4GenJets +
     ak5GenJets +
     ak3PFJets +
+    PFTowers +
+    #akPu3PFJets +
     ak5PFJets +
     akSoftDrop4PFJets +
     akSoftDrop5PFJets +
@@ -78,8 +96,9 @@ jetSequences = cms.Sequence(
     akFilter5PFJets +
     akSoftDrop4GenJets +
     akSoftDrop5GenJets +
-    highPurityTracks +
+    inclusiveVertexing + ##addition of IVF vertexing
     ak3PFJetSequence +
+    #akPu3PFJetSequence +
     ak4PFJetSequence +
     ak5PFJetSequence +
     ak4CaloJetSequence +

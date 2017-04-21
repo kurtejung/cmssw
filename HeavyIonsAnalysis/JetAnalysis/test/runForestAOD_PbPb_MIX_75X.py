@@ -26,15 +26,18 @@ process.HiForest.HiForestVersion = cms.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-                                "file:samples/PbPb_MC_RECODEBUG.root"
+                                "/store/himc/HINPbPbWinter16DR/Pythia6_Dijet280_pp502_Hydjet_MB/AODSIM/75X_mcRun2_HeavyIon_v13-v1/00000/02A21EFD-4E0E-E611-BB37-D4AE526A109A.root"
                                 )
                             )
 
 # Number of events we want to process, -1 = all events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(100)
 )
 
+process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
+    ignoreTotal = cms.untracked.int32(1)
+)
 
 #####################################################################################
 # Load Global Tag, Geometry, etc.
@@ -185,7 +188,7 @@ process.ana_step = cms.Path(
 # Temporary disactivation - until we have DIGI & RECO in CMSSW_7_5_7_patch4
 # process.mixAnalyzer *
                             process.runAnalyzer *
-                            process.hltanalysis *
+                            #process.hltanalysis *
                             process.centralityBin *
                             process.hiEvtAnalyzer*
                             process.HiGenParticleAna*
@@ -193,8 +196,8 @@ process.ana_step = cms.Path(
                             process.hiSignalGenFilters + 
                             process.jetSequences +
                             process.hiFJRhoAnalyzer +
-                            process.ggHiNtuplizer +
-                            process.ggHiNtuplizerGED +
+                            #process.ggHiNtuplizer +
+                            #process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
                             process.pfcandAnalyzerCS +
                             process.HiForest +

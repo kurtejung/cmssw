@@ -26,7 +26,7 @@ process.HiForest.HiForestVersion = cms.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-                                "file:samples/PbPb_MC_RECODEBUG.root"
+                                "file:/afs/cern.ch/user/k/kjung/MCProjects/hiReco_75X/CMSSW_7_5_8_patch3/src/Pythia6_PbPbReco.root"
                                 )
                             )
 

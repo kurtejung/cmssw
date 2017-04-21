@@ -45,7 +45,7 @@ akSoftDrop1Caloparton = patJetPartonMatch.clone(src = cms.InputTag("akSoftDrop1C
 akSoftDrop1CaloPatJetFlavourAssociationLegacy = akSoftDrop1CalobTagger.PatJetFlavourAssociationLegacy
 akSoftDrop1CaloPatJetPartons = akSoftDrop1CalobTagger.PatJetPartons
 akSoftDrop1CaloJetTracksAssociatorAtVertex = akSoftDrop1CalobTagger.JetTracksAssociatorAtVertex
-akSoftDrop1CaloJetTracksAssociatorAtVertex.tracks = cms.InputTag("highPurityTracks")
+#akSoftDrop1CaloJetTracksAssociatorAtVertex.tracks = cms.InputTag("highPurityTracks")
 akSoftDrop1CaloSimpleSecondaryVertexHighEffBJetTags = akSoftDrop1CalobTagger.SimpleSecondaryVertexHighEffBJetTags
 akSoftDrop1CaloSimpleSecondaryVertexHighPurBJetTags = akSoftDrop1CalobTagger.SimpleSecondaryVertexHighPurBJetTags
 akSoftDrop1CaloCombinedSecondaryVertexBJetTags = akSoftDrop1CalobTagger.CombinedSecondaryVertexBJetTags
@@ -186,11 +186,11 @@ akSoftDrop1CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("a
                                                              fillGenJets = False,
                                                              isMC = False,
 							     doSubEvent = False,
-                                                             useHepMC = cms.untracked.bool(False),
+                                                             useHepMC = cms.untracked.bool(True),
 							     genParticles = cms.untracked.InputTag("genParticles"),
 							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
-                                                             doLifeTimeTaggingExtras = cms.untracked.bool(False),
+                                                             doLifeTimeTaggingExtras = cms.untracked.bool(True),
                                                              bTagJetName = cms.untracked.string("akSoftDrop1Calo"),
                                                              jetName = cms.untracked.string("akSoftDrop1Calo"),
                                                              genPtMin = cms.untracked.double(5),
@@ -223,7 +223,7 @@ akSoftDrop1CaloJetSequence_mc = cms.Sequence(
                                                   *
                                                   akSoftDrop1CaloJetBtagging
                                                   *
-                                                  akSoftDrop1CaloNjettiness
+                                                  akSoftDrop1CaloNjettiness #No constituents for calo jets in pp. Must be removed for pp calo jets but I'm not sure how to do this transparently (Marta)
                                                   *
                                                   akSoftDrop1CalopatJetsWithBtagging
                                                   *
