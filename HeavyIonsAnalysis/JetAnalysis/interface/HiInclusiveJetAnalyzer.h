@@ -33,6 +33,9 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
+#include "SimDataFormats/JetMatching/interface/JetFlavourInfo.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
+
 #include "fastjet/contrib/Njettiness.hh"
 #include "TMVA/Reader.h"
 //
@@ -42,9 +45,6 @@
    \author Matt Nguyen
    \date   November 2010
 */
-
-
-
 
 class HiInclusiveJetAnalyzer : public edm::EDAnalyzer {
 public:
@@ -84,7 +84,7 @@ private:
   math::XYZPoint getPosition(const DetId &id, reco::Vertex::Point vtx = reco::Vertex::Point(0,0,0));
   int TaggedJet(reco::Jet calojet, edm::Handle<reco::JetTagCollection > jetTags );
   float getTau(unsigned num, const reco::GenJet object) const;
-  void analyzeSubjets(const reco::Jet jet);
+  void analyzeSubjets(const reco::Jet jet, int idx, edm::Handle<reco::JetFlavourInfoMatchingCollection>, edm::Handle<edm::View<reco::Jet> >);
   void fillNewJetVarsRecoJet(const reco::Jet jet);
   void fillNewJetVarsRefJet(const reco::GenJet jet);
   void fillNewJetVarsGenJet(const reco::GenJet jet);
@@ -212,6 +212,12 @@ private:
   edm::EDGetTokenT<reco::JetTagCollection> NegativeSoftPFMuonByPtBJetTags_;
   edm::EDGetTokenT<reco::JetTagCollection> PositiveSoftPFMuonByPtBJetTags_;
 
+  bool doExtendedFlavorTagging_;
+  edm::EDGetTokenT<reco::JetFlavourInfoMatchingCollection> jetFlavourInfosToken_;
+  edm::EDGetTokenT<reco::JetFlavourInfoMatchingCollection> subjetFlavourInfosToken_;
+  edm::EDGetTokenT<edm::View<reco::Jet> >                  groomedJetsToken_;
+  bool                                                     useSubjets_;
+
   static const int MAXJETS = 1000;
   static const int MAXTRACKS = 5000;
   static const int MAXHLTBITS = 5000;
@@ -329,10 +335,26 @@ private:
     float jtsym[MAXJETS];
     int   jtdroppedBranches[MAXJETS];
     
+    float jtHadronFlavor[MAXJETS];
+    float jtPartonFlavor[MAXJETS];
+
     std::vector<std::vector<float>> jtSubJetPt;
     std::vector<std::vector<float>> jtSubJetEta;
     std::vector<std::vector<float>> jtSubJetPhi;
     std::vector<std::vector<float>> jtSubJetM;
+    std::vector<std::vector<float>> jtSubJetHadronFlavor;
+    std::vector<std::vector<float>> jtSubJetPartonFlavor; 
+    std::vector<std::vector<std::vector<float>>> jtSubJetHadronDR;
+    std::vector<std::vector<std::vector<float>>> jtSubJetHadronPt;
+    std::vector<std::vector<std::vector<float>>> jtSubJetHadronEta;
+    std::vector<std::vector<std::vector<float>>> jtSubJetHadronPhi;
+    std::vector<std::vector<std::vector<float>>> jtSubJetHadronPdg;
+    std::vector<std::vector<std::vector<float>>> jtSubJetPartonDR;
+    std::vector<std::vector<std::vector<float>>> jtSubJetPartonPt;
+    std::vector<std::vector<std::vector<float>>> jtSubJetPartonEta;
+    std::vector<std::vector<std::vector<float>>> jtSubJetPartonPhi;
+    std::vector<std::vector<std::vector<float>>> jtSubJetPartonPdg;
+
 
     std::vector<std::vector<int>> jtConstituentsId;
     std::vector<std::vector<float>> jtConstituentsE;

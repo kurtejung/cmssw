@@ -27,14 +27,14 @@ process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
         #"root://eoscms.cern.ch//eos/cms/store/cmst3/group/hintt/CMSSW_7_5_8_patch2/TTbar/RECO/Events_1.root"
-                                '/store/user/mnguyen//ppBjet/Pythia6_TuneZ2_5020GeV/Pythia6_bjet80_TuneZ2_5020GeV_RECO_v2/160205_072451/0000/step3_99.root'
-                            )
+                            #    'file:/afs/cern.ch/work/k/kjung/holdingCell/Pythia6_pp_HLTReco.root'
+                           '/store/himc/HINppWinter16DR/Pythia8_bJet120_pp502_TuneCUETP8M1/AODSIM/75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/80000/02C10805-D6E4-E511-9C81-0CC47A4D9A10.root' 
+			   )
 )
 
 # Number of events we want to process, -1 = all events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100))
-
+    input = cms.untracked.int32(1000))
 
 #####################################################################################
 # Load Global Tag, Geometry, etc.
@@ -174,13 +174,13 @@ process.CSVscikitTags.weightFile=cms.FileInPath('HeavyIonsAnalysis/JetAnalysis/d
 #########################
 # Main analysis list
 #########################
-process.ana_step = cms.Path(process.hltanalysis *
+process.ana_step = cms.Path(#process.hltanalysis *
                             process.hiEvtAnalyzer *
                             process.HiGenParticleAna*
                             process.jetSequences +
-                            process.egmGsfElectronIDSequence + #Should be added in the path for VID module
-                            process.ggHiNtuplizer +
-                            process.ggHiNtuplizerGED +
+                            #process.egmGsfElectronIDSequence + #Should be added in the path for VID module
+                            #process.ggHiNtuplizer +
+                            #process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
                             process.HiForest +
 			    process.trackSequencesPP +
@@ -235,13 +235,18 @@ process.akSoftDrop4PFPatJetFlavourAssociation.groomedJets=cms.InputTag("akSoftDr
 process.akSoftDrop4PFPatJetFlavourAssociation.subjets= cms.InputTag('akSoftDrop4PFJets','SubJets')
 process.akSoftDrop4PFJets.useSoftDrop = True
 process.akSoftDrop4PFpatJetsWithBtagging.getJetMCFlavour = cms.bool(False)
-
-process.printEventAKSoftDrop4PFJets = cms.EDAnalyzer("printJetFlavourInfo",
-                                                     jetFlavourInfos    = cms.InputTag("akSoftDrop4PFPatJetFlavourAssociation"),
-                                                     subjetFlavourInfos = cms.InputTag("akSoftDrop4PFPatJetFlavourAssociation","SubJets"),
-                                                     groomedJets        = cms.InputTag("akSoftDrop4PFJets"),
-                                                     )
+process.akSoftDrop4PFJetAnalyzer.doExtendedFlavorTagging = cms.untracked.bool(True)
+process.akSoftDrop4PFJetAnalyzer.jetFlavourInfos    = cms.InputTag("akSoftDrop4PFPatJetFlavourAssociation")
+process.akSoftDrop4PFJetAnalyzer.subjetFlavourInfos = cms.InputTag("akSoftDrop4PFPatJetFlavourAssociation","SubJets")
+process.akSoftDrop4PFJetAnalyzer.groomedJets        = cms.InputTag("akSoftDrop4PFJets")
 
 
-process.ana_step *= process.printEventAKSoftDrop4PFJets
+#process.printEventAKSoftDrop4PFJets = cms.EDAnalyzer("printJetFlavourInfo",
+#                                                     jetFlavourInfos    = cms.InputTag("akSoftDrop4PFPatJetFlavourAssociation"),
+#                                                     subjetFlavourInfos = cms.InputTag("akSoftDrop4PFPatJetFlavourAssociation","SubJets"),
+#                                                     groomedJets        = cms.InputTag("akSoftDrop4PFJets"),
+#                                                     )
+
+
+#process.ana_step *= process.printEventAKSoftDrop4PFJets
 

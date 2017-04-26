@@ -1,4 +1,5 @@
 <use name="root"/>
+<use name="rootrflx"/>
 <use name="hepmc"/>
 <use name="boost"/>
 <use name="fastjet"/>
@@ -33,4 +34,4 @@
 <use name="CalibFormats/HcalObjects"/>
 <use name="RecoLocalCalo/HcalRecAlgos"/>
 <use name="RecoBTag/SecondaryVertex"/>
-<flags EDM_PLUGIN="1"/>
+###flags EDM_PLUGIN="1"/>

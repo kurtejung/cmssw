@@ -56,6 +56,7 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
+//template class std::vector<std::vector<std::vector<float> > >;
 
 // class ExtraInfo : public fastjet::PseudoJet::UserInfoBase {
 // public:
@@ -110,6 +111,7 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
   useHepMC_ = iConfig.getUntrackedParameter<bool> ("useHepMC",false);
   fillGenJets_ = iConfig.getUntrackedParameter<bool>("fillGenJets",false);
 
+  doExtendedFlavorTagging_ = iConfig.getUntrackedParameter<bool>("doExtendedFlavorTagging",false);
   doTrigger_ = iConfig.getUntrackedParameter<bool>("doTrigger",false);
   doHiJetID_ = iConfig.getUntrackedParameter<bool>("doHiJetID",false);
   if(doHiJetID_) jetIDweightFile_ = iConfig.getUntrackedParameter<string>("jetIDWeight","weights.xml");
@@ -124,7 +126,7 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
     //genjetTag_ = consumes<vector<reco::GenJet> > (iConfig.getParameter<InputTag>("genjetTag"));
     genjetTag_ = consumes<edm::View<reco::GenJet>>(iConfig.getParameter<InputTag>("genjetTag"));
     if(useHepMC_) eventInfoTag_ = consumes<HepMCProduct> (iConfig.getParameter<InputTag>("eventInfoTag"));
-    eventGenInfoTag_ = consumes<GenEventInfoProduct> (iConfig.getParameter<InputTag>("eventInfoTag"));
+    //eventGenInfoTag_ = consumes<GenEventInfoProduct> (iConfig.getParameter<InputTag>("eventInfoTag"));
   }
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose",false);
 
@@ -147,6 +149,13 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
   doExtraCTagging_ = iConfig.getUntrackedParameter<bool>("doExtraCTagging",false);
 
   genParticleSrc_ = consumes<reco::GenParticleCollection> (iConfig.getUntrackedParameter<edm::InputTag>("genParticles",edm::InputTag("hiGenParticles")));
+
+  if(doExtendedFlavorTagging_){
+	  jetFlavourInfosToken_ = consumes<reco::JetFlavourInfoMatchingCollection>( iConfig.getParameter<edm::InputTag>("jetFlavourInfos") );
+	  subjetFlavourInfosToken_ = mayConsume<reco::JetFlavourInfoMatchingCollection>( iConfig.exists("subjetFlavourInfos") ? iConfig.getParameter<edm::InputTag>("subjetFlavourInfos") : edm::InputTag() );
+	  groomedJetsToken_ = mayConsume<edm::View<reco::Jet> >( iConfig.exists("groomedJets") ? iConfig.getParameter<edm::InputTag>("groomedJets") : edm::InputTag() );
+	  useSubjets_ = ( iConfig.exists("subjetFlavourInfos") && iConfig.exists("groomedJets") );
+  }
 
   if(doTrigger_){
     L1gtReadout_ = consumes< L1GlobalTriggerReadoutRecord > (iConfig.getParameter<edm::InputTag>("L1gtReadout"));
@@ -344,7 +353,12 @@ HiInclusiveJetAnalyzer::beginJob() {
   t->Branch("jttau1",jets_.jttau1,"jttau1[nref]/F");
   t->Branch("jttau2",jets_.jttau2,"jttau2[nref]/F");
   t->Branch("jttau3",jets_.jttau3,"jttau3[nref]/F");
-  
+
+  if(doExtendedFlavorTagging_){
+  	t->Branch("jtHadronFlavor",jets_.jtHadronFlavor,"jtHadronFlavor[nref]/F");
+	t->Branch("jtPartonFlavor",jets_.jtPartonFlavor,"jtPartonFlavor[nref]/F");
+  } 
+ 
   if(doSubJets_) {
     t->Branch("jtSubJetPt",&jets_.jtSubJetPt);
     t->Branch("jtSubJetEta",&jets_.jtSubJetEta);
@@ -352,6 +366,20 @@ HiInclusiveJetAnalyzer::beginJob() {
     t->Branch("jtSubJetM",&jets_.jtSubJetM);
     t->Branch("jtsym",jets_.jtsym,"jtsym[nref]/F");
     t->Branch("jtdroppedBranches",jets_.jtdroppedBranches,"jtdroppedBranches[nref]/I");
+    if(doExtendedFlavorTagging_){
+	t->Branch("jtSubJetHadronFlavor",&jets_.jtSubJetHadronFlavor);
+	t->Branch("jtSubJetPartonFlavor",&jets_.jtSubJetPartonFlavor);
+	t->Branch("jtSubJetHadronDR",&jets_.jtSubJetHadronDR);
+	t->Branch("jtSubJetHadronPt",&jets_.jtSubJetHadronPt);
+	t->Branch("jtSubJetHadronEta",&jets_.jtSubJetHadronEta);
+	t->Branch("jtSubJetHadronPhi",&jets_.jtSubJetHadronPhi);
+	t->Branch("jtSubJetHadronPdg",&jets_.jtSubJetHadronPdg);
+	t->Branch("jtSubJetPartonDR",&jets_.jtSubJetPartonDR);
+	t->Branch("jtSubJetPartonPt",&jets_.jtSubJetPartonPt);
+	t->Branch("jtSubJetPartonEta",&jets_.jtSubJetPartonEta);
+	t->Branch("jtSubJetPartonPhi",&jets_.jtSubJetPartonPhi);
+	t->Branch("jtSubJetPartonPdg",&jets_.jtSubJetPartonPdg);
+    }
   }
 
   if(doJetConstituents_){
@@ -1483,7 +1511,26 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
     jets_.jtsym[jets_.nref] = -999.;
     jets_.jtdroppedBranches[jets_.nref] = -999;
     
-    if(doSubJets_) analyzeSubjets(jet);
+   edm::Handle<reco::JetFlavourInfoMatchingCollection> theJetFlavourInfos;
+   edm::Handle<reco::JetFlavourInfoMatchingCollection> theSubjetFlavourInfos;
+   edm::Handle<edm::View<reco::Jet> > groomedJets; 
+   if(doExtendedFlavorTagging_){
+	   iEvent.getByToken(jetFlavourInfosToken_, theJetFlavourInfos );
+	   if(useSubjets_){
+		   iEvent.getByToken(subjetFlavourInfosToken_, theSubjetFlavourInfos);
+		   iEvent.getByToken(groomedJetsToken_, groomedJets);
+	   }   
+
+	for(reco::JetFlavourInfoMatchingCollection::const_iterator j= theJetFlavourInfos->begin(); j!=theJetFlavourInfos->end(); j++){
+		   const reco::Jet *flavorMatch = (*j).first.get();	
+		   if(abs(flavorMatch->pt() - jet.pt()) < 0.1){
+			   jets_.jtHadronFlavor[jets_.nref] = (*j).second.getHadronFlavour();
+			   jets_.jtPartonFlavor[jets_.nref] = (*j).second.getPartonFlavour();
+		   }	
+	}
+   }
+
+    if(doSubJets_) analyzeSubjets(jet, jets_.nref, theSubjetFlavourInfos, groomedJets);
 
     if(usePat_){
       if( (*patjets)[j].hasUserFloat(jetName_+"Njettiness:tau1") )
@@ -1795,12 +1842,12 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
       if(beamParticles.second != 0)jets_.beamId2 = beamParticles.second->pdg_id();
     }
     
-    edm::Handle<GenEventInfoProduct> hEventInfo;
-    iEvent.getByToken(eventGenInfoTag_,hEventInfo);
+    //edm::Handle<GenEventInfoProduct> hEventInfo;
+    //iEvent.getByToken(eventGenInfoTag_,hEventInfo);
     //jets_.pthat = hEventInfo->binningValues()[0];
 
     // binning values and qscale appear to be equivalent, but binning values not always present
-    jets_.pthat = hEventInfo->qScale();
+    //jets_.pthat = hEventInfo->qScale();
 
     //edm::Handle<vector<reco::GenJet> >genjets;
     edm::Handle<edm::View<reco::GenJet>> genjets;
@@ -2128,12 +2175,25 @@ float HiInclusiveJetAnalyzer::getTau(unsigned num, const reco::GenJet object) co
 
 
 //--------------------------------------------------------------------------------------------------
-void HiInclusiveJetAnalyzer::analyzeSubjets(const reco::Jet jet) {
+void HiInclusiveJetAnalyzer::analyzeSubjets(const reco::Jet jet, int idx, edm::Handle<reco::JetFlavourInfoMatchingCollection> theSubjetFlavourInfos, edm::Handle<edm::View<reco::Jet> > groomedJets) {
 
   std::vector<float> sjpt;
   std::vector<float> sjeta;
   std::vector<float> sjphi;
   std::vector<float> sjm;
+  std::vector<float> hadronFlavor;
+  std::vector<float> partonFlavor;
+  std::vector<std::vector<float>> hadronDR;
+  std::vector<std::vector<float>> hadronPt;
+  std::vector<std::vector<float>> hadronEta;
+  std::vector<std::vector<float>> hadronPhi;
+  std::vector<std::vector<float>> hadronPdg;
+  std::vector<std::vector<float>> partonDR;
+  std::vector<std::vector<float>> partonPt;
+  std::vector<std::vector<float>> partonEta;
+  std::vector<std::vector<float>> partonPhi;
+  std::vector<std::vector<float>> partonPdg;
+
   if(jet.numberOfDaughters()>0) {
     for (unsigned k = 0; k < jet.numberOfDaughters(); ++k) {
       const reco::Candidate & dp = *jet.daughter(k);
@@ -2141,18 +2201,82 @@ void HiInclusiveJetAnalyzer::analyzeSubjets(const reco::Jet jet) {
       sjeta.push_back(dp.eta());
       sjphi.push_back(dp.phi());
       sjm.push_back(dp.mass());
+      if(doExtendedFlavorTagging_){
+	      vector<float> hdr, hpt, heta, hphi, hpdg, pdr, ppt, peta, pphi, ppdg;
+	      for ( reco::JetFlavourInfoMatchingCollection::const_iterator sj  = theSubjetFlavourInfos->begin(); sj != theSubjetFlavourInfos->end(); sj++ ) { 
+		const reco::Jet *subjd = dynamic_cast<const reco::Jet*>(jet.daughter(k));
+		if(abs(subjd->pt() - (*sj).first.get()->pt()) < 0.1 ){
+		const reco::Jet *aSubjet = (*sj).first.get();
+		reco::JetFlavourInfo aInfo = (*sj).second;	
+		hadronFlavor.push_back(aInfo.getHadronFlavour());
+		partonFlavor.push_back(aInfo.getPartonFlavour());
+		const reco::GenParticleRefVector &bHadrons = aInfo.getbHadrons();
+		for(reco::GenParticleRefVector::const_iterator it = bHadrons.begin(); it != bHadrons.end(); ++it){
+			hdr.push_back(reco::deltaR(aSubjet->eta(), aSubjet->phi(), (*it)->eta(), (*it)->phi()));
+			hpt.push_back((*it)->pt());
+			heta.push_back((*it)->eta());
+			hphi.push_back((*it)->phi());
+			hpdg.push_back((*it)->pdgId());
+		}
+		const reco::GenParticleRefVector &cHadrons = aInfo.getcHadrons();
+                for(reco::GenParticleRefVector::const_iterator it = cHadrons.begin(); it != cHadrons.end(); ++it){
+                        hdr.push_back(reco::deltaR(aSubjet->eta(), aSubjet->phi(), (*it)->eta(), (*it)->phi()));
+                        hpt.push_back((*it)->pt());
+                        heta.push_back((*it)->eta());
+                        hphi.push_back((*it)->phi());
+                        hpdg.push_back((*it)->pdgId());
+                }
+		const reco::GenParticleRefVector & partons = aInfo.getPartons();
+		for(reco::GenParticleRefVector::const_iterator it = partons.begin(); it != partons.end(); ++it){
+			pdr.push_back(reco::deltaR( aSubjet->eta(), aSubjet->phi(), (*it)->eta(), (*it)->phi() ));
+			ppt.push_back((*it)->pt());
+                        peta.push_back((*it)->eta());
+                        pphi.push_back((*it)->phi());
+                        ppdg.push_back((*it)->pdgId());
+		}
+		}
+	  }
+	  hadronDR.push_back(hdr);
+	  hadronPt.push_back(hpt);
+	  hadronEta.push_back(heta);
+	  hadronPhi.push_back(hphi);
+	  hadronPdg.push_back(hpdg);
+	  partonDR.push_back(pdr);
+          partonPt.push_back(ppt);
+          partonEta.push_back(peta);
+          partonPhi.push_back(pphi);
+          partonPdg.push_back(ppdg);
+	}	
+  
     }
   } else {
     sjpt.push_back(-999.);
     sjeta.push_back(-999.);
     sjphi.push_back(-999.);
     sjm.push_back(-999.);
+    if(doExtendedFlavorTagging_){
+	    hadronFlavor.push_back(-999);
+	    partonFlavor.push_back(-999);
+    }
   }
   jets_.jtSubJetPt.push_back(sjpt);
   jets_.jtSubJetEta.push_back(sjeta);
   jets_.jtSubJetPhi.push_back(sjphi);
   jets_.jtSubJetM.push_back(sjm);
-  
+  if(doExtendedFlavorTagging_){
+	  jets_.jtSubJetHadronFlavor.push_back(hadronFlavor);
+	  jets_.jtSubJetPartonFlavor.push_back(partonFlavor); 
+	  jets_.jtSubJetHadronDR.push_back(hadronDR);
+	  jets_.jtSubJetHadronPt.push_back(hadronPt);
+	  jets_.jtSubJetHadronEta.push_back(hadronEta);
+	  jets_.jtSubJetHadronPhi.push_back(hadronPhi);
+	  jets_.jtSubJetHadronPdg.push_back(hadronPdg);
+	  jets_.jtSubJetPartonDR.push_back(partonDR);
+	  jets_.jtSubJetPartonPt.push_back(partonPt);
+	  jets_.jtSubJetPartonEta.push_back(partonEta);
+	  jets_.jtSubJetPartonPhi.push_back(partonPhi);
+	  jets_.jtSubJetPartonPdg.push_back(partonPdg);
+  }	
 }
 
 
