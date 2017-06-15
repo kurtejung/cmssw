@@ -26,14 +26,14 @@ process.HiForest.HiForestVersion = cms.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-                                "file:samples/PbPb_MC_AODSIM.root"
+                                "/store/himc/HINPbPbWinter16DR/Pythia6_Dijet120_pp502_Hydjet_MB/AODSIM/75X_mcRun2_HeavyIon_v13-v1/00000/04A04E01-A80D-E611-835A-02163E012AD1.root"
 #                                "file:samples/PbPb_MC_RECODEBUG.root"
                                 )
                             )
 
 # Number of events we want to process, -1 = all events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(10)
 )
 
 process.output = cms.OutputModule("PoolOutputModule",
@@ -101,9 +101,9 @@ process.load('HeavyIonsAnalysis.JetAnalysis.hiSignalGenFilters')
 
 
 #PU minimal tower cut reco sequence
-process.load('HeavyIonsAnalysis.JetAnalysis.FullJetSequence_puLimitedPbPb')
+#process.load('HeavyIonsAnalysis.JetAnalysis.FullJetSequence_puLimitedPbPb')
 # nominal jet reco sequence
-#process.load('HeavyIonsAnalysis.JetAnalysis.FullJetSequence_nominalPbPb')
+process.load('HeavyIonsAnalysis.JetAnalysis.FullJetSequence_nominalPbPb')
 # replace above with this one for JEC:
 #process.load('HeavyIonsAnalysis.JetAnalysis.FullJetSequence_JECPbPb')
 
@@ -119,6 +119,7 @@ process.load('HeavyIonsAnalysis.EventAnalysis.HiMixAnalyzerRECO_cff')
 process.load('GeneratorInterface.HiGenCommon.HeavyIon_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.HiGenAnalyzer_cfi')
 process.load('HeavyIonsAnalysis.EventAnalysis.runanalyzer_cff')
+process.HiGenParticleAna.ptMin = cms.untracked.double(0.7)
 process.HiGenParticleAna.genParticleSrc = cms.untracked.InputTag("genParticles")
 # Temporary disactivation - until we have DIGI & RECO in CMSSW_7_5_7_patch4
 process.HiGenParticleAna.doHI = False
@@ -201,14 +202,14 @@ process.ana_step = cms.Path(
                             process.HiGenParticleAna*
                             process.akHiGenJets +
                             process.hiSignalGenFilters +
-                            process.ak2GenNjettiness +
-                            process.ak3GenNjettiness +
-                            process.ak4GenNjettiness +
-                            process.ak5GenNjettiness *
+                            #process.ak2GenNjettiness +
+                            #process.ak3GenNjettiness +
+                            #process.ak4GenNjettiness +
+                            #process.ak5GenNjettiness *
                             process.jetSequences +
                             process.hiFJRhoAnalyzer +
-                            process.ggHiNtuplizer +
-                            process.ggHiNtuplizerGED +
+                            #process.ggHiNtuplizer +
+                            #process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
                             process.pfcandAnalyzerCS +
                             process.HiForest +
