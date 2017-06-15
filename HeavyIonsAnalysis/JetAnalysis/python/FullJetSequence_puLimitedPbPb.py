@@ -13,9 +13,11 @@ from HeavyIonsAnalysis.JetAnalysis.jets.akPu4CaloJetSequence_PbPb_mc_cff import 
 from HeavyIonsAnalysis.JetAnalysis.jets.akPu4PFJetSequence_PbPb_mc_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.akCs4PFJetSequence_PbPb_mc_cff import *
 
-#SoftDrop analyzers
-from HeavyIonsAnalysis.JetAnalysis.jets.akCsSoftDrop4PFJetSequence_PbPb_mc_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.akCsSoftDropZ05B154PFJetSequence_PbPb_mc_cff import *
+from HeavyIonsAnalysis.JetAnalysis.jets.akCsFilter4PFJetSequence_PbPb_mc_cff import *
+#from HeavyIonsAnalysis.JetAnalysis.jets.akCsFilter5PFJetSequence_PbPb_mc_cff import *
+from HeavyIonsAnalysis.JetAnalysis.jets.akCsSoftDrop4PFJetSequence_PbPb_mc_cff import *
+#from HeavyIonsAnalysis.JetAnalysis.jets.akCsSoftDrop5PFJetSequence_PbPb_mc_cff import *
 
 highPurityTracks = cms.EDFilter("TrackSelector",
                                 src = cms.InputTag("hiGeneralTracks"),
@@ -39,36 +41,59 @@ jetSequences = cms.Sequence(
     hiFJRhoProducer +
     hiFJGridEmptyAreaCalculator + 
 
-    akPu2CaloJets +
-    akPu2PFJets +
-    akCs2PFJets +
+    #akPu2CaloJets +
+    #akPu2PFJets +
+    #akCs2PFJets +
 
-    akPu3CaloJets +
-    akPu3PFJets +
-    akCs3PFJets +
+    #akPu3CaloJets +
+    #akPu3PFJets +
+    #akCs3PFJets +
 
-    akPu4CaloJets +
+    #akPu4CaloJets +
     akPu4PFJets +
     akCs4PFJets +
 
-    akCsSoftDrop4PFJets +
-    akCsSoftDropZ05B154PFJets +
+    #akCsSoftDropZ05B154PFJets +
     
+    #akPu5CaloJets +
+    #akPu5PFJets +
+    #akVs5CaloJets +
+    #akVs5PFJets +
+    #akCs5PFJets +
+
+    akCsFilter4PFJets +
+    #akCsFilter5PFJets +
+    akCsSoftDrop4PFJets +
+    #akCsSoftDrop5PFJets +
+
     highPurityTracks +
     offlinePrimaryVertices +
 
-    akPu2CaloJetSequence +
-    akPu2PFJetSequence +
-    akCs2PFJetSequence +
+    #akPu2CaloJetSequence +
+    #akPu2PFJetSequence +
+    #akCs2PFJetSequence +
 
-    akPu3CaloJetSequence +
-    akPu3PFJetSequence +
-    akCs3PFJetSequence +
+    #akCsSoftDropZ05B154PFJetSequence
+    #akPu3CaloJetSequence +
+    #akVs3CaloJetSequence +
+    #akVs3PFJetSequence +
+    #akPu3PFJetSequence +
+    #akCs3PFJetSequence +
 
-    akPu4CaloJetSequence +
-    akPu4PFJetSequence +
+    #akPu4CaloJetSequence +
+    #akVs4CaloJetSequence +
+    #akVs4PFJetSequence +
+    #akPu4PFJetSequence +
     akCs4PFJetSequence +
 
-    akCsSoftDrop4PFJetSequence +
-    akCsSoftDropZ05B154PFJetSequence
+    #akPu5CaloJetSequence +
+    #akVs5CaloJetSequence +
+    #akVs5PFJetSequence +
+    #akPu5PFJetSequence +
+    #akCs5PFJetSequence +
+
+    #akCsFilter4PFJetSequence +
+    #akCsFilter5PFJetSequence +
+    akCsSoftDrop4PFJetSequence #+
+    #akCsSoftDrop5PFJetSequence
 )
