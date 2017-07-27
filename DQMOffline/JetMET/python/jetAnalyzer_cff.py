@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.JetMET.jetAnalyzer_cfi import *
+from DQMOffline.JetMET.heavyIonJetExtras_cfi import *
 
 #jet correctors defined in JetMETDQMOfflineSource python file
 
@@ -25,5 +26,10 @@ jetDQMAnalyzerSequenceHI = cms.Sequence(jetDQMAnalyzerIC5CaloHIUncleaned
                                         * jetDQMAnalyzerAkPU3PF
                                         * jetDQMAnalyzerAkPU4PF
                                         * jetDQMAnalyzerAkPU5PF
+
+					* jetDQMAnalyzerPrequel
+					* jetDQMAnalyzerAkCs3PF
+                                        * jetDQMAnalyzerAkCs4PF
+                                        * jetDQMAnalyzerAkCs5PF
 )
 
