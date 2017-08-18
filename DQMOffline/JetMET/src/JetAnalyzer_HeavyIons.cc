@@ -190,7 +190,7 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
   TH2F *h2D_etabins_forRhoM = new TH2F("etabinsForRho","",etaBins_, edge_pseudorapidity, 100,0,1.5);
   TH2F *h2D_ptBins_forRhoM = new TH2F("ptBinsForRho","",300,0,300,100,0,1.5);
   //TH2F *h2D_centBins_forRhoM = new TH2F("centBinsForRho","",200,0,200,100,0,1.5);
-
+  
   if(isPFJet){
 
     mNPFpart         = ibooker.book1D("NPFpart","No of particle flow candidates",1000,0,1000);
