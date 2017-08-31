@@ -889,7 +889,10 @@ void VirtualJetProducer::writeJetsWithConstituents(  edm::Event & iEvent, edm::E
   std::auto_ptr<reco::PFCandidateCollection>  constituentCollection( new reco::PFCandidateCollection() );
   // This will store the handle for the constituents after we write them
   edm::OrphanHandle<reco::PFCandidateCollection> constituentHandleAfterPut;
-  
+ 
+  edm::Handle<reco::CandidateView> inputsHandle;
+  iEvent.getByToken(input_candidateview_token_, inputsHandle);
+ 
   // Loop over the jets and extract constituents
   std::vector<fastjet::PseudoJet> constituentsSub;
   std::vector<fastjet::PseudoJet>::const_iterator it = fjJets_.begin(),

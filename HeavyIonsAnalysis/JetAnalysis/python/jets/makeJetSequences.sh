@@ -49,6 +49,7 @@ do
                                  genjets="HiGenJets"
                             fi
                             ismc="False"
+                            ispp="False"
                             corrlabel="_offline"
                             domatch="True"
                             tracks="hiGeneralTracks"
@@ -73,6 +74,7 @@ do
                                 partons="genParticles"
                                 pflow="particleFlow"
 			        doTower="False"
+				ispp="True"
 			        if [ $sample == "data" ] && [ $sub == "NONE" ] && [ $radius == 4 ] && [ $object == "PF" ]; then
 				    jetcorrectionlevels="\'L2Relative\',\'L3Absolute\',\'L2L3Residual\'"
 			        fi
@@ -115,6 +117,7 @@ do
                                       -e "s/CORRNAME_/$corrname/g" \
                                       -e "s/MATCHED_/$match/g" \
                                       -e "s/ISMC/$ismc/g" \
+				      -e "s/ISPP/$ispp/g" \
                                       -e "s/MATCHGENJETS/$matchGenjets/g" \
                                       -e "s/GENJETS/$genjets/g" \
                                       -e "s/GENPARTICLES/$genparticles/g" \
@@ -133,6 +136,9 @@ do
 			              -e "s/RESOLVEBYDIST_/$resolveByDist/g" \
 				      > $algo$subt$groomt$radius${object}JetSequence_${system}_${sample}_cff.py
 
+			    if [ $doSubJets == "True" ]; then
+			    	sed -i 's/\#SUBJETDUMMY_//g' $algo$subt$groomt$radius${object}JetSequence_${system}_${sample}_cff.py 
+			    fi
 			    # skip no sub
 			    if [ $sample == "jec" ]; then
                                 echo "${algo}${subt}${groomt}${radius}${object}JetAnalyzer.genPtMin = cms.untracked.double(1)" >> $algo$subt$groomt$radius${object}JetSequence_${system}_${sample}_cff.py
