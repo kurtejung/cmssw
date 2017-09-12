@@ -90,19 +90,23 @@ ak4GenNjettiness = Njettiness.clone(
 jetSequences = cms.Sequence(
     myPartons +
     genParticlesForJets +
-    ak3GenJets +
+    #ak3GenJets +
     ak4GenJets +
     ak3GenNjettiness + 
     ak4GenNjettiness + 
+    #ak5GenJets +
     ak3PFJets +
+    #ak5PFJets +
     akSoftDrop4PFJets +
-    akSoftDrop5PFJets +
+    #akSoftDrop5PFJets +
     #akSoftDrop4PFz01bm1Jets +
     #akSoftDrop4PFz01b1Jets +
     #akSoftDrop4PFz005bm1Jets +
     #akSoftDrop4PFz005bm2Jets + 
-    akFilter4PFJets +
+    #akFilter4PFJets +
+    #akFilter5PFJets +
     akSoftDrop4GenJets +
+    #akSoftDrop5GenJets +
     highPurityTracks +
 #    ak3PFJetSequence +
 #    ak4PFJetSequence +
