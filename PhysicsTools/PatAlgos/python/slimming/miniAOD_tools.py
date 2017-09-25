@@ -378,6 +378,42 @@ def miniAOD_customizeMC(process):
     #also jet flavour must be switched
     process.patJetFlavourAssociation.rParam = 0.4
 
+def miniAOD_customizeForHI(process):
+
+    task = getPatAlgosToolsTask(process)
+    # Adding CS jets
+    if not hasattr(process, 'akCs4Jets'): #MM: avoid confilct with substructure call
+        process.load('RecoHI.HiJetAlgos.HiRecoPFJets_cff')
+        task.add(process.kt4PFJetsForRho)
+	task.add(process.hiFJRhoProducer)
+	task.add(process.akCs4PFJets)
+    process.akCs4PFJets.doAreaFastjet = True # even for standard ak4PFJets this is overwritten in RecoJets/Configuration/python/RecoPFJets_cff
+    from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
+    process.akCs4PFJetsTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
+        j2tParametersVX,
+        jets = cms.InputTag("ak4CsPFJets")
+    )
+    task.add(process.akCs4PFJetsTracksAssociatorAtVertex)
+
+    from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
+    addJetCollection(process, postfix   = "", labelName = 'akCs4PF', jetSource = cms.InputTag('akCs4PFJets'),
+                    jetCorrections = ('AK4PF', ['L2Relative', 'L3Absolute'], ''),
+                    pfCandidates = cms.InputTag('particleFlow'), 
+                    algo= 'AK', rParam = 0.4, btagDiscriminators = map(lambda x: x.value() ,process.patJets.discriminatorSources)
+                    )
+    
+    process.patJetGenJetMatch.matched = 'slimmedGenJets'
+   
+    process.load('PhysicsTools.PatAlgos.selectionLayer1.hiJetSelector_cfi')
+    task.add(process.selectedhiPatJets)
+    process.selectedhiPatJets.cut = cms.string("pt > 15")
+
+    process.load('PhysicsTools.PatAlgos.slimming.slimmedHIJets_cfi')
+    task.add(process.slimmedJetsCs4PF)
+    addToProcessAndTask('slimmedJetsCs4PF', process.slimmedJets.clone(), process, task)
+    process.slimmedJetsCs4PF.src = cms.InputTag("selectedhiPatJets")
+
+
 def miniAOD_customizeOutput(out):
     from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import MiniAODOverrideBranchesSplitLevel
     out.overrideBranchesSplitLevel = MiniAODOverrideBranchesSplitLevel
@@ -402,4 +438,10 @@ def miniAOD_customizeAllData(process):
 def miniAOD_customizeAllMC(process):
     miniAOD_customizeCommon(process)
     miniAOD_customizeMC(process)
+    return process
+
+def miniAOD_customizeAllForHIMC(process):
+    miniAOD_customizeCommon(process)
+    miniAOD_customizeMC(process)
+    miniAOD_customizeForHI(process)
     return process

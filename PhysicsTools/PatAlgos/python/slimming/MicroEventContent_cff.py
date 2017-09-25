@@ -74,7 +74,12 @@ MicroEventContent = cms.PSet(
         # Lumi
         'keep LumiScalerss_scalersRawToDigi_*_*',
         # CTPPS
-        'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducer_*_*'
+        'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducer_*_*',
+	#HeavyIons
+	'keep *_hiCentrality_*_*',
+	'keep *_packedPFCandidatesCS_*_*',
+	'keep *_slimmedMETsCS_*_*',
+	'keep *_slimmedMETsCSNoHF_*_*'
     )
 )
 MicroEventContentMC = cms.PSet(

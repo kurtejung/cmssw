@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cff import *
+from PhysicsTools.PatAlgos.producersHeavyIons.hiJetProducer_cfi import *
 from RecoHI.HiJetAlgos.HiGenCleaner_cff import *
 heavyIonCleaned = cms.Sequence(genPartons*hiPartons+heavyIonCleanedGenJets)
 
@@ -13,7 +14,9 @@ makeHeavyIonJets = cms.Sequence(
     patJetPartonMatch *
 
     # object production
-    patJets
+    patJets +
+    akCs4PFJets +
+    akCs4PFPatJets
     )
 
 
