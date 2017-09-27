@@ -386,8 +386,14 @@ def miniAOD_customizeForHI(process):
         process.load('RecoHI.HiJetAlgos.HiRecoPFJets_cff')
         task.add(process.kt4PFJetsForRho)
 	task.add(process.hiFJRhoProducer)
+        task.add(process.akCs3PFJets)
 	task.add(process.akCs4PFJets)
-    process.akCs4PFJets.doAreaFastjet = True # even for standard ak4PFJets this is overwritten in RecoJets/Configuration/python/RecoPFJets_cff
+	task.add(process.PFTowers)
+	task.add(process.akPu3PFJets)
+        task.add(process.akPu4PFJets)
+	#task.add(process.akPu4CaloJets)
+    process.akCs3PFJets.doAreaFastjet = True # even for standard ak4PFJets this is overwritten in RecoJets/Configuration/python/RecoPFJets_cff
+    process.akCs4PFJets.doAreaFastjet = True
     from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
     process.akCs4PFJetsTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
         j2tParametersVX,
@@ -401,18 +407,47 @@ def miniAOD_customizeForHI(process):
                     pfCandidates = cms.InputTag('particleFlow'), 
                     algo= 'AK', rParam = 0.4, btagDiscriminators = map(lambda x: x.value() ,process.patJets.discriminatorSources)
                     )
+    addJetCollection(process, postfix   = "", labelName = 'akCs3PF', jetSource = cms.InputTag('akCs3PFJets'),
+                    jetCorrections = ('AK4PF', ['L2Relative', 'L3Absolute'], ''),
+                    pfCandidates = cms.InputTag('particleFlow'),
+                    algo= 'AK', rParam = 0.3, btagDiscriminators = map(lambda x: x.value() ,process.patJets.discriminatorSources)
+                    )
+    addJetCollection(process, postfix   = "", labelName = 'akPu3PF', jetSource = cms.InputTag('akPu3PFJets'),
+                    jetCorrections = ('AK4PF', ['L2Relative', 'L3Absolute'], ''),
+                    pfCandidates = cms.InputTag('particleFlow'),
+                    algo= 'AK', rParam = 0.3, btagDiscriminators = map(lambda x: x.value() ,process.patJets.discriminatorSources)
+                    )
+    addJetCollection(process, postfix   = "", labelName = 'akPu4PF', jetSource = cms.InputTag('akPu4PFJets'),
+                    jetCorrections = ('AK4PF', ['L2Relative', 'L3Absolute'], ''),
+                    pfCandidates = cms.InputTag('particleFlow'),
+                    algo= 'AK', rParam = 0.4, btagDiscriminators = map(lambda x: x.value() ,process.patJets.discriminatorSources)
+                    )
+    #addJetCollection(process, postfix   = "", labelName = 'akPu4Calo', jetSource = cms.InputTag('akPu4CaloJets'),
+    #                jetCorrections = ('AK4Calo', ['L2Relative', 'L3Absolute'], ''),
+    #                pfCandidates = cms.InputTag('particleFlow'),
+    #                algo= 'AK', rParam = 0.4, btagDiscriminators = map(lambda x: x.value() ,process.patJets.discriminatorSources)
+    #                )
     
     process.patJetGenJetMatch.matched = 'slimmedGenJets'
    
     process.load('PhysicsTools.PatAlgos.selectionLayer1.hiJetSelector_cfi')
-    task.add(process.selectedhiPatJets)
-    process.selectedhiPatJets.cut = cms.string("pt > 15")
+    task.add(process.selectedhiPatJetsCs3PF)
+    task.add(process.selectedhiPatJetsCs4PF)
+    task.add(process.selectedhiPatJetsPu3PF)
+    task.add(process.selectedhiPatJetsPu4PF)
+    #task.add(process.selectedhiPatJetsPu4Calo)
 
     process.load('PhysicsTools.PatAlgos.slimming.slimmedHIJets_cfi')
+    task.add(process.slimmedJetsCs3PF)
     task.add(process.slimmedJetsCs4PF)
-    addToProcessAndTask('slimmedJetsCs4PF', process.slimmedJets.clone(), process, task)
-    process.slimmedJetsCs4PF.src = cms.InputTag("selectedhiPatJets")
-
+    task.add(process.slimmedJetsPu3PF)
+    task.add(process.slimmedJetsPu4PF)
+    task.add(process.slimmedJetsPu4Calo)
+    addToProcessAndTask('slimmedJetsCs3PF', process.slimmedJetsCs3PF.clone(), process, task)
+    addToProcessAndTask('slimmedJetsCs4PF', process.slimmedJetsCs4PF.clone(), process, task)
+    addToProcessAndTask('slimmedJetsPu3PF', process.slimmedJetsPu3PF.clone(), process, task)
+    addToProcessAndTask('slimmedJetsPu4PF', process.slimmedJetsPu4PF.clone(), process, task)
+    addToProcessAndTask('slimmedJetsPu4Calo', process.slimmedJetsPu4Calo.clone(), process, task)
 
 def miniAOD_customizeOutput(out):
     from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import MiniAODOverrideBranchesSplitLevel
