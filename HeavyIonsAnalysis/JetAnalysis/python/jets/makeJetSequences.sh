@@ -13,7 +13,7 @@ do
             do
                 for groom in SoftDrop SoftDropZ05B15 NONE
                 do
-                    for radius in 2 3 4
+                    for radius in 2 3 4 5
                     do
                         for object in PF Calo
                         do

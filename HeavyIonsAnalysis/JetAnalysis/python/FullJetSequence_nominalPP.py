@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 ### PP RECO does not include R=3 or R=5 jets.
 ### re-RECO is only possible for PF, RECO is missing calotowers
 from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
+from RecoJets.JetProducers.ak4CaloJets_cfi import ak4CaloJets
 ak5PFJets.doAreaFastjet = True
 ak3PFJets = ak5PFJets.clone(rParam = 0.3)
 from RecoJets.JetProducers.ak5GenJets_cfi import ak5GenJets
@@ -50,6 +51,7 @@ from HeavyIonsAnalysis.JetAnalysis.makePartons_cff import myPartons
 
 from HeavyIonsAnalysis.JetAnalysis.jets.ak3PFJetSequence_pp_mc_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.ak4PFJetSequence_pp_mc_cff import *
+from HeavyIonsAnalysis.JetAnalysis.jets.ak5PFJetSequence_pp_mc_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.ak4CaloJetSequence_pp_mc_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.akSoftDrop4PFJetSequence_pp_mc_cff import *
 
@@ -68,6 +70,10 @@ ak4GenNjettiness = Njettiness.clone(
                     src = cms.InputTag("ak4GenJets"),
                     R0  = cms.double( 0.4 )
 )
+ak5GenNjettiness = Njettiness.clone(
+                    src = cms.InputTag("ak5GenJets"),
+                    R0  = cms.double( 0.5 )
+)
 
 
 # Other radii jets and calo jets need to be reconstructed
@@ -76,15 +82,19 @@ jetSequences = cms.Sequence(
     genParticlesForJets +
     ak3GenJets +
     ak4GenJets +
+    ak5GenJets +
     ak3GenNjettiness + 
     ak4GenNjettiness + 
+    ak5GenNjettiness +
     ak3PFJets +
-    akSoftDrop4PFJets +
-    akFilter4PFJets +
-    akSoftDrop4GenJets +
+    ak5PFJets +
+    #akSoftDrop4PFJets +
+    #akFilter4PFJets +
+    #akSoftDrop4GenJets +
     highPurityTracks +
     ak3PFJetSequence +
     ak4PFJetSequence +
-    ak4CaloJetSequence +
-    akSoftDrop4PFJetSequence
+    ak5PFJetSequence +
+    ak4CaloJetSequence 
+    #akSoftDrop4PFJetSequence
 )

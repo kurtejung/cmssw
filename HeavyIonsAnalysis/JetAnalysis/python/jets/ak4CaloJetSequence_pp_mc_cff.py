@@ -5,7 +5,7 @@ from HeavyIonsAnalysis.JetAnalysis.patHeavyIonSequences_cff import patJetGenJetM
 from HeavyIonsAnalysis.JetAnalysis.inclusiveJetAnalyzer_cff import *
 from HeavyIonsAnalysis.JetAnalysis.bTaggers_cff import *
 from RecoJets.JetProducers.JetIDParams_cfi import *
-from RecoJets.JetProducers.nJettinessAdder_cfi import Njettiness
+#from RecoJets.JetProducers.nJettinessAdder_cfi import Njettiness
 
 ak4Calomatch = patJetGenJetMatch.clone(
     src = cms.InputTag("ak4CaloJets"),
@@ -170,11 +170,11 @@ ak4CalopatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("ak4CaloJets
         # embedPFCandidates = True
         )
 
-ak4CaloNjettiness = Njettiness.clone(
-		    src = cms.InputTag("ak4CaloJets"),
-           	    R0  = cms.double( 0.4)
-)
-ak4CalopatJetsWithBtagging.userData.userFloats.src += ['ak4CaloNjettiness:tau1','ak4CaloNjettiness:tau2','ak4CaloNjettiness:tau3']
+#ak4CaloNjettiness = Njettiness.clone(
+#		    src = cms.InputTag("ak4CaloJets"),
+#           	    R0  = cms.double( 0.4)
+#)
+#ak4CalopatJetsWithBtagging.userData.userFloats.src += ['ak4CaloNjettiness:tau1','ak4CaloNjettiness:tau2','ak4CaloNjettiness:tau3']
 
 ak4CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak4CalopatJetsWithBtagging"),
                                                              genjetTag = 'ak4GenJets',
@@ -200,9 +200,9 @@ ak4CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak4Calopa
                                                              doGenSubJets = cms.untracked.bool(False),     
                                                              subjetGenTag = cms.untracked.InputTag("ak4GenJets"),
                                                              doGenTaus = cms.untracked.bool(False),
-                                                             genTau1 = cms.InputTag("ak4GenNjettiness","tau1"),
-                                                             genTau2 = cms.InputTag("ak4GenNjettiness","tau2"),
-                                                             genTau3 = cms.InputTag("ak4GenNjettiness","tau3"),
+#                                                             genTau1 = cms.InputTag("ak4GenNjettiness","tau1"),
+#                                                             genTau2 = cms.InputTag("ak4GenNjettiness","tau2"),
+#                                                             genTau3 = cms.InputTag("ak4GenNjettiness","tau3"),
                                                              doGenSym = cms.untracked.bool(False),
                                                              genSym = cms.InputTag("ak4GenJets","sym"),
                                                              genDroppedBranches = cms.InputTag("ak4GenJets","droppedBranches")
@@ -228,8 +228,8 @@ ak4CaloJetSequence_mc = cms.Sequence(
                                                   ak4CaloJetTracksAssociatorAtVertex
                                                   *
                                                   ak4CaloJetBtagging
-                                                  *
-                                                  ak4CaloNjettiness #No constituents for calo jets in pp. Must be removed for pp calo jets but I'm not sure how to do this transparently (Marta)
+##                                                  *
+##                                                  ak4CaloNjettiness #No constituents for calo jets in pp. Must be removed for pp calo jets but I'm not sure how to do this transparently (Marta)
                                                   *
                                                   ak4CalopatJetsWithBtagging
                                                   *
@@ -244,8 +244,8 @@ ak4CaloJetSequence_data = cms.Sequence(ak4Calocorr
                                                     *
                                                     ak4CaloJetBtagging
                                                     *
-                                                    ak4CaloNjettiness 
-                                                    *
+                                                    #ak4CaloNjettiness 
+                                                    #*
                                                     ak4CalopatJetsWithBtagging
                                                     *
                                                     ak4CaloJetAnalyzer

@@ -63,6 +63,8 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "TreeHelper.h"
 
 const double pi = 4*atan(1.);
@@ -1347,7 +1349,7 @@ void Tupel::processElectrons(){
       passConversionVeto_ = !ConversionTools::hasMatchedConversion(el,conversions_h,
 								   beamSpotHandle->position());
     }else{
-      printf("\n\nERROR!!! conversions not found!!!\n");
+      LogDebug("VectorBosonTupel")<<"ERROR!!! conversions not found!!!\n";
     }
 
 
