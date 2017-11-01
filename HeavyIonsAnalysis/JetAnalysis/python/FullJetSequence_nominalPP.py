@@ -26,14 +26,11 @@ akSoftDrop4PFJets = cms.EDProducer(
     writeCompound = cms.bool(True),
     jetCollInstanceName=cms.string("SubJets")
 )
-<<<<<<< HEAD
-=======
 akSoftDrop5PFJets = akSoftDrop4PFJets.clone(rParam = cms.double(0.5), R0 = cms.double(0.5))
-akSoftDrop4PFz01bm1Jets = akSoftDrop4PFJets.clone(beta = cms.double(-1))
-akSoftDrop4PFz01b1Jets = akSoftDrop4PFJets.clone(beta = cms.double(1))
-akSoftDrop4PFz005bm1Jets = akSoftDrop4PFJets.clone(beta = cms.double(-1), zcut=cms.double(0.05))
-akSoftDrop4PFz005bm2Jets = akSoftDrop4PFJets.clone(beta = cms.double(-2), zcut=cms.double(0.05))
->>>>>>> fully-working PbPb configs and included soft-drop variations in pp
+#akSoftDrop4PFz01bm1Jets = akSoftDrop4PFJets.clone(beta = cms.double(-1))
+#akSoftDrop4PFz01b1Jets = akSoftDrop4PFJets.clone(beta = cms.double(1))
+#akSoftDrop4PFz005bm1Jets = akSoftDrop4PFJets.clone(beta = cms.double(-1), zcut=cms.double(0.05))
+#akSoftDrop4PFz005bm2Jets = akSoftDrop4PFJets.clone(beta = cms.double(-2), zcut=cms.double(0.05))
 
 from HeavyIonsAnalysis.JetAnalysis.akSoftDrop4GenJets_cfi import akSoftDrop4GenJets
 
@@ -84,8 +81,8 @@ jetSequences = cms.Sequence(
     genParticlesForJets +
     #ak3GenJets +
     ak4GenJets +
-    ak3GenNjettiness + 
-    ak4GenNjettiness + 
+    #ak3GenNjettiness + 
+    #ak4GenNjettiness + 
     #ak5GenJets +
     ak3PFJets +
     #ak5PFJets +
@@ -97,7 +94,7 @@ jetSequences = cms.Sequence(
     #akSoftDrop5GenJets +
     highPurityTracks +
 #    ak3PFJetSequence +
-    ak4PFJetSequence +
+#    ak4PFJetSequence +
 #    ak5PFJetSequence +
     #ak4CaloJetSequence +
     akSoftDrop4PFJetSequence 

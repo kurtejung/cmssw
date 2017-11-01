@@ -99,7 +99,6 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
   doGenSubJets_ = iConfig.getUntrackedParameter<bool>("doGenSubJets", false);
   subjetGenTag_ = consumes<reco::JetView> (iConfig.getUntrackedParameter<InputTag>("subjetGenTag"));
 
-<<<<<<< HEAD
   if (iConfig.exists("genTau1"))
     tokenGenTau1_          = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("genTau1"));
   if (iConfig.exists("genTau2"))
@@ -380,7 +379,7 @@ HiInclusiveJetAnalyzer::beginJob() {
     t->Branch("jtSubJetM",&jets_.jtSubJetM);
     t->Branch("jtsym",jets_.jtsym,"jtsym[nref]/F");
     t->Branch("jtdroppedBranches",jets_.jtdroppedBranches,"jtdroppedBranches[nref]/I");
-    t->Branch("jtSubJetcsvV1",&jets_.jtSubJetcsvV1);
+    //t->Branch("jtSubJetcsvV1",&jets_.jtSubJetcsvV1);
     t->Branch("jtSubJetcsvV2",&jets_.jtSubJetcsvV2);
     t->Branch("jtSubJetNegCsvV2",&jets_.jtSubJetNegCsvV2);
     t->Branch("jtSubJetJP",&jets_.jtSubJetJP);
@@ -1655,11 +1654,11 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
       if( (*patjets)[j].hasUserFloat(jetName_+"Njettiness:tau3") )
         jets_.jttau3[jets_.nref] = (*patjets)[j].userFloat(jetName_+"Njettiness:tau3");
 
-      if( (*patjets)[j].hasUserFloat(jetName_+"Jets:sym") )
-        jets_.jtsym[jets_.nref] = (*patjets)[j].userFloat(jetName_+"Jets:sym");
+      //if( (*patjets)[j].hasUserFloat(jetName_+"Jets:sym") )
+      //  jets_.jtsym[jets_.nref] = (*patjets)[j].userFloat(jetName_+"Jets:sym");
       //std::cout << "jets_.nref: " << jets_.nref << "  jtsym: " << jets_.jtsym[jets_.nref] << endl;
-      if( (*patjets)[j].hasUserInt(jetName_+"Jets:droppedBranches") )
-        jets_.jtdroppedBranches[jets_.nref] = (*patjets)[j].userInt(jetName_+"Jets:droppedBranches");
+      //if( (*patjets)[j].hasUserInt(jetName_+"Jets:droppedBranches") )
+      //  jets_.jtdroppedBranches[jets_.nref] = (*patjets)[j].userInt(jetName_+"Jets:droppedBranches");
 
       if( (*patjets)[j].isPFJet()) {
         jets_.jtPfCHF[jets_.nref] = (*patjets)[j].chargedHadronEnergyFraction();

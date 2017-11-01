@@ -28,8 +28,8 @@ process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
         #"root://eoscms.cern.ch//eos/cms/store/cmst3/group/hintt/CMSSW_7_5_8_patch2/TTbar/RECO/Events_1.root"
                            #'file:/afs/cern.ch/work/k/kjung/ppMC_pythia6_bjet100_pp502_AODSIM.root')
-                           #'/store/himc/HINppWinter16DR/Pythia6_bJet100_pp502/AODSIM/75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/30000/06988FB5-3A0E-E611-9100-02163E011808.root')
-			   '/store/user/gsfs/Pythia8_Dijet80_pp_CUETP8M1_5020GeV/RECO__201711004/171004_122752/0000/step3_pp_RAW2DIGI_L1Reco_RECO_101.root')
+                           '/store/himc/HINppWinter16DR/Pythia6_bJet100_pp502/AODSIM/75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/30000/06988FB5-3A0E-E611-9100-02163E011808.root')
+			   #'/store/user/gsfs/Pythia8_Dijet80_pp_CUETP8M1_5020GeV/RECO__201711004/171004_122752/0000/step3_pp_RAW2DIGI_L1Reco_RECO_101.root')
 #			   eventsToProcess = cms.untracked.VEventRange('1:42101','1:52848')
 )
 
@@ -77,7 +77,7 @@ process.es_prefer_jpTagConds = cms.ESPrefer("PoolDBESSource","jpTagConds")
 #####################################################################################
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName=cms.string("HiForestAOD_myTagger.root"))
+                                   fileName=cms.string("HiForestAOD.root"))
 
 #####################################################################################
 # Additional Reconstruction and Analysis: Main Body

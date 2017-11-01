@@ -216,7 +216,7 @@ ALGO_SUB_GROOM_RADIUS_OBJECT_JetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = c
                                                              genTau3 = cms.InputTag("ALGO_GROOM_RADIUS_GenNjettiness","tau3"),
                                                              doGenSym = cms.untracked.bool(DOGENSYM_),
                                                              genSym = cms.InputTag("ALGO_GROOM_RADIUS_GenJets","sym"),
-                                                             genDroppedBranches = cms.InputTag("ALGO_GROOM_RADIUS_GenJets","droppedBranches")
+                                                             genDroppedBranches = cms.InputTag("ALGO_GROOM_RADIUS_GenJets","droppedBranches"),
 							     doExtendedFlavorTagging = cms.untracked.bool(ISMC),
 							     jetFlavourInfos = cms.InputTag("ALGO_SUB_GROOM_RADIUS_OBJECT_PatJetFlavourAssociation"),
 							     subjetFlavourInfos = cms.InputTag("ALGO_SUB_GROOM_RADIUS_OBJECT_PatJetFlavourAssociation","SubJets"),
