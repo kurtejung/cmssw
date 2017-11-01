@@ -123,6 +123,13 @@ class bTaggers:
 		self.SubjetSecondaryVertexTagInfos.extSVCollection = cms.InputTag('inclusiveSecondaryVertices')
 		self.SubjetSecondaryVertexTagInfos.vertexCuts.maxDeltaRToJetAxis = cms.double(0.1)
 
+		self.SubjetSecondaryVertexNegativeTagInfos = self.SubjetSecondaryVertexTagInfos.clone()
+		self.SubjetSecondaryVertexNegativeTagInfos.vertexCuts.distVal2dMin = -2.5
+		self.SubjetSecondaryVertexNegativeTagInfos.vertexCuts.distVal2dMax = -0.01
+		self.SubjetSecondaryVertexNegativeTagInfos.vertexCuts.distSig2dMin = -99999.9
+		self.SubjetSecondaryVertexNegativeTagInfos.vertexCuts.distSig2dMax = -3.0
+		self.SubjetSecondaryVertexNegativeTagInfos.vertexCuts.maxDeltaRToJetAxis = -0.5
+
 		self.SubjetJetTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorExplicit",
 			jets = cms.InputTag(jetname+'Jets','SubJets')
 		)
@@ -138,7 +145,11 @@ class bTaggers:
 		self.CombinedSubjetSecondaryVertexBJetTags = combinedSecondaryVertexBJetTags.clone(
 			tagInfos = cms.VInputTag(cms.InputTag(jetname+"SubjetImpactParameterTagInfos"),
 			cms.InputTag(jetname+"SubjetSecondaryVertexTagInfos"))
-		) 
+		)
+		self.CombinedSubjetNegativeSecondaryVertexV2BJetTags = negativeCombinedSecondaryVertexV2BJetTags.clone(
+                        tagInfos = cms.VInputTag(cms.InputTag(jetname+"SubjetImpactParameterTagInfos"),
+                        cms.InputTag(jetname+"SubjetSecondaryVertexNegativeTagInfos"))
+                ) 
 
         self.JetTracksAssociator = cms.Sequence(self.JetTracksAssociatorAtVertex)
         self.JetBtaggingIP       = cms.Sequence(self.ImpactParameterTagInfos * (

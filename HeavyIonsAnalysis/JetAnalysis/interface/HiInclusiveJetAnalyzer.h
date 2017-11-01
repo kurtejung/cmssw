@@ -91,7 +91,7 @@ private:
   math::XYZPoint getPosition(const DetId &id, reco::Vertex::Point vtx = reco::Vertex::Point(0,0,0));
   int TaggedJet(reco::Jet calojet, edm::Handle<reco::JetTagCollection > jetTags );
   float getTau(unsigned num, const reco::GenJet object) const;
-  void analyzeSubjets(const reco::Jet jet, int idx, edm::Handle<reco::JetFlavourInfoMatchingCollection>, edm::Handle<edm::View<reco::Jet> >, edm::Handle<reco::JetTagCollection> jetTags_CombinedSvtxV2, edm::Handle<reco::JetTagCollection> jetTags_JP, edm::Handle<std::vector<reco::TrackIPTagInfo> > subjetTagInfo, edm::Handle<std::vector<reco::SecondaryVertexTagInfo> > subjetSV);
+  void analyzeSubjets(const reco::Jet jet, int idx, edm::Handle<reco::JetFlavourInfoMatchingCollection>, edm::Handle<edm::View<reco::Jet> >, edm::Handle<reco::JetTagCollection> jetTags_CombinedSvtxV2, edm::Handle<reco::JetTagCollection> jetTags_negCombinedSvtxV2, edm::Handle<reco::JetTagCollection> jetTags_JP, edm::Handle<std::vector<reco::TrackIPTagInfo> > subjetTagInfo, edm::Handle<std::vector<reco::SecondaryVertexTagInfo> > subjetSV, edm::Handle<std::vector<reco::SecondaryVertexTagInfo> > subjetTagInfoNegSVx);
   void fillNewJetVarsRecoJet(const reco::Jet jet);
   void fillNewJetVarsRefJet(const reco::GenJet jet);
   void fillNewJetVarsGenJet(const reco::GenJet jet);
@@ -230,7 +230,9 @@ private:
   edm::EDGetTokenT<reco::JetTagCollection> SubjetJetProbabilityBJetTags_;
   edm::EDGetTokenT<std::vector<reco::TrackIPTagInfo> > svImpactParameterTagInfos_;
   edm::EDGetTokenT<std::vector<reco::SecondaryVertexTagInfo> > svSubjetTagInfos_;
+  edm::EDGetTokenT<std::vector<reco::SecondaryVertexTagInfo> > svSubjetNegTagInfos_;
   edm::EDGetTokenT<reco::JetTagCollection> CombinedSubjetSecondaryVertexBJetTags_;
+  edm::EDGetTokenT<reco::JetTagCollection> CombinedSubjetNegativeSecondaryVertexBJetTags_;
 
   bool doExtendedFlavorTagging_;
   edm::EDGetTokenT<reco::JetFlavourInfoMatchingCollection> jetFlavourInfosToken_;
@@ -364,7 +366,8 @@ private:
     std::vector<std::vector<float>> jtSubJetM;
     std::vector<std::vector<float>> jtSubJetHadronFlavor;
     std::vector<std::vector<float>> jtSubJetPartonFlavor; 
-    std::vector<std::vector<float>> jtSubJetcsvV1;
+    std::vector<std::vector<float>> jtSubJetcsvV2;
+    std::vector<std::vector<float>> jtSubJetNegCsvV2;
     std::vector<std::vector<float>> jtSubJetJP;
     std::vector<std::vector<int>> jtSubJetVtxType;
     std::vector<std::vector<std::vector<float>>> jtSubJetSvtxm;
