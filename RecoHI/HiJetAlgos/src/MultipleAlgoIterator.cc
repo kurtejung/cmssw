@@ -27,7 +27,7 @@ void MultipleAlgoIterator::fillDescriptions(edm::ConfigurationDescriptions& desc
 
 	edm::ParameterSetDescription descMultipleAlgoIterator;
 	descMultipleAlgoIterator.add<double>("minimumTowersFraction", 0.0);
-
+        descriptions.add("MultipleAlgoIterator",descMultipleAlgoIterator);
 
 }
 
