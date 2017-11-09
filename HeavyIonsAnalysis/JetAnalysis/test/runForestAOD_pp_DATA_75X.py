@@ -25,14 +25,13 @@ process.HiForest.HiForestVersion = cms.string(version)
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-                                '/store/data/Run2015E/HighPtJet80/AOD/PromptReco-v1/000/262/173/00000/3E8293B5-9894-E511-90E8-02163E011FA1.root'                        
-                                #'/store/data/Run2015E/HighPtJet80/AOD/PromptReco-v1/000/262/272/00000/803A4255-7696-E511-B178-02163E0142DD.root'
+                                '/store/data/Run2015E/HighPtJet80/AOD/PromptReco-v1/000/262/272/00000/803A4255-7696-E511-B178-02163E0142DD.root'
                             )
 )
 
 # Number of events we want to process, -1 = all events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1))
+    input = cms.untracked.int32(5))
 
 
 #####################################################################################
@@ -178,8 +177,8 @@ process.ana_step = cms.Path(process.hltanalysis *
                             process.hiEvtAnalyzer *
                             process.jetSequences +
                             process.egmGsfElectronIDSequence + #Should be added in the path for VID module
-                            process.ggHiNtuplizer +
-                            process.ggHiNtuplizerGED +
+                            #process.ggHiNtuplizer +
+                            #process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
                             process.HiForest +
                             process.trackSequencesPP
@@ -227,3 +226,15 @@ process.pVertexFilterCutEandG = cms.Path(process.pileupVertexFilterCutEandG)
 process.pAna = cms.EndPath(process.skimanalysis)
 
 # Customization
+
+process.ak3PFJetAnalyzer.trackSelection = process.ak4PFSecondaryVertexTagInfos.trackSelection
+process.ak3PFJetAnalyzer.trackPairV0Filter = process.ak4PFSecondaryVertexTagInfos.vertexCuts.v0Filter
+
+process.ak4PFJetAnalyzer.trackSelection = process.ak4PFSecondaryVertexTagInfos.trackSelection
+process.ak4PFJetAnalyzer.trackPairV0Filter = process.ak4PFSecondaryVertexTagInfos.vertexCuts.v0Filter
+
+process.ak5PFJetAnalyzer.trackSelection = process.ak4PFSecondaryVertexTagInfos.trackSelection
+process.ak5PFJetAnalyzer.trackPairV0Filter = process.ak4PFSecondaryVertexTagInfos.vertexCuts.v0Filter
+
+process.ak4CaloJetAnalyzer.trackSelection = process.ak4PFSecondaryVertexTagInfos.trackSelection
+process.ak4CaloJetAnalyzer.trackPairV0Filter = process.ak4PFSecondaryVertexTagInfos.vertexCuts.v0Filter

@@ -185,7 +185,7 @@ ALGO_SUB_GROOM_RADIUS_OBJECT_Njettiness = Njettiness.clone(
 		    src = cms.InputTag("ALGO_SUB_GROOM_RADIUS_OBJECT_Jets"),
            	    R0  = cms.double( 0.RADIUS_)
 )
-ALGO_SUB_GROOM_RADIUS_OBJECT_patJetsWithBtagging.userData.userFloats.src += ['ALGO_SUB_GROOM_RADIUS_OBJECT_Njettiness:tau1','ALGO_SUB_GROOM_RADIUS_OBJECT_Njettiness:tau2','ALGO_SUB_GROOM_RADIUS_OBJECT_Njettiness:tau3']
+#ppDataDummy_ALGO_SUB_GROOM_RADIUS_OBJECT_patJetsWithBtagging.userData.userFloats.src += ['ALGO_SUB_GROOM_RADIUS_OBJECT_Njettiness:tau1','ALGO_SUB_GROOM_RADIUS_OBJECT_Njettiness:tau2','ALGO_SUB_GROOM_RADIUS_OBJECT_Njettiness:tau3']
 
 ALGO_SUB_GROOM_RADIUS_OBJECT_JetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ALGO_SUB_GROOM_RADIUS_OBJECT_patJetsWithBtagging"),
                                                              genjetTag = 'ALGO_RADIUS_GENJETS',
@@ -239,8 +239,8 @@ ALGO_SUB_GROOM_RADIUS_OBJECT_JetSequence_mc = cms.Sequence(
                                                   *
                                                   ALGO_SUB_GROOM_RADIUS_OBJECT_JetBtagging
                                                   *
-                                                  ALGO_SUB_GROOM_RADIUS_OBJECT_Njettiness #No constituents for calo jets in pp. Must be removed for pp calo jets but I'm not sure how to do this transparently (Marta)
-                                                  *
+                                                  #ppDataDummy_ALGO_SUB_GROOM_RADIUS_OBJECT_Njettiness #No constituents for calo jets in pp. Must be removed for pp calo jets but I'm not sure how to do this transparently (Marta)
+                                                  #ppDataDummy_*
                                                   ALGO_SUB_GROOM_RADIUS_OBJECT_patJetsWithBtagging
                                                   *
                                                   ALGO_SUB_GROOM_RADIUS_OBJECT_JetAnalyzer
@@ -254,8 +254,8 @@ ALGO_SUB_GROOM_RADIUS_OBJECT_JetSequence_data = cms.Sequence(ALGO_SUB_GROOM_RADI
                                                     *
                                                     ALGO_SUB_GROOM_RADIUS_OBJECT_JetBtagging
                                                     *
-                                                    ALGO_SUB_GROOM_RADIUS_OBJECT_Njettiness 
-                                                    *
+                                                    #ppDataDummy_ALGO_SUB_GROOM_RADIUS_OBJECT_Njettiness 
+                                                    #ppDataDummy_*
                                                     ALGO_SUB_GROOM_RADIUS_OBJECT_patJetsWithBtagging
                                                     *
                                                     ALGO_SUB_GROOM_RADIUS_OBJECT_JetAnalyzer
