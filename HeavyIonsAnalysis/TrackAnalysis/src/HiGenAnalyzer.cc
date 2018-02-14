@@ -205,7 +205,6 @@ HiGenAnalyzer::~HiGenAnalyzer()
 vector<int> HiGenAnalyzer::getMotherIdx(edm::Handle<reco::GenParticleCollection> parts, const reco::GenParticle pin){
 
   vector<int> motherArr;
-  //if(motherDaughterPDGsToSave_.size() != 0 ) {
     for(UInt_t i = 0; i < parts->size(); ++i){
       const reco::GenParticle& p = (*parts)[i];
       if (stableOnly_ && p.status()!=1) continue;
@@ -216,13 +215,10 @@ vector<int> HiGenAnalyzer::getMotherIdx(edm::Handle<reco::GenParticleCollection>
 	if(p.pdgId() == motherDaughterPDGsToSave_.at(ipdg)) saveFlag=true;
       }
       if(motherDaughterPDGsToSave_.size()>0 && saveFlag!=true) continue; //save all particles in vector unless vector is empty, then save all particles
-      if (p.status()==3) continue; //don't match to the initial collision particles
       for (unsigned int idx=0; idx<p.numberOfDaughters(); idx++){
-	//if (p.daughter(idx)->pt()*p.daughter(idx)->eta()*p.daughter(idx)->phi() == pin.pt()*pin.eta()*pin.phi()) motherArr.push_back(i);
 	if(fabs(p.daughter(idx)->pt()-pin.pt())<0.001 && fabs(p.daughter(idx)->eta()-pin.eta())<0.001 && fabs(p.daughter(idx)->phi()-pin.phi())<0.001) motherArr.push_back(i);
       }
     }
-  //}
   if(motherArr.size()==0) motherArr.push_back(-999);
   return motherArr;
 }
@@ -232,7 +228,6 @@ vector<int> HiGenAnalyzer::getMotherIdx(edm::Handle<reco::GenParticleCollection>
 vector<int> HiGenAnalyzer::getDaughterIdx(edm::Handle<reco::GenParticleCollection> parts, const reco::GenParticle pin){
 
   vector<int> daughterArr;
-  //if(motherDaughterPDGsToSave_.size() != 0 ) {
     for(UInt_t i = 0; i < parts->size(); ++i){
       const reco::GenParticle& p = (*parts)[i];
       if (stableOnly_ && p.status()!=1) continue;
@@ -243,13 +238,10 @@ vector<int> HiGenAnalyzer::getDaughterIdx(edm::Handle<reco::GenParticleCollectio
 	if(p.pdgId() == motherDaughterPDGsToSave_.at(ipdg)) saveFlag=true;
       }
       if(motherDaughterPDGsToSave_.size()>0 && saveFlag!=true) continue; //save all particles in vector unless vector is empty, then save all particles
-      if (p.status()==3) continue; //don't match to the initial collision particles
       for(unsigned int idx=0; idx<p.numberOfMothers(); idx++){
-	//if (p.mother(idx)->pt()*p.mother(idx)->eta()*p.mother(idx)->phi() == pin.pt()*pin.eta()*pin.phi()) daughterArr.push_back(i);
 	if(fabs(p.mother(idx)->pt()-pin.pt())<0.001 && fabs(p.mother(idx)->eta()-pin.eta())<0.001 && fabs(p.mother(idx)->phi()-pin.phi())<0.001) daughterArr.push_back(i);
       }
     }
-  //}
   if(daughterArr.size()==0) daughterArr.push_back(-999);
   return daughterArr;
 }
@@ -371,15 +363,9 @@ HiGenAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       hev_.nMothers.push_back( p.numberOfMothers());
       vector<int> tempMothers = getMotherIdx(parts, p);
       hev_.motherIndex.push_back(tempMothers);
-      // for(unsigned int imother=0; imother<tempMothers.size(); imother++){
-      // 	hev_.motherIndex[hev_.mult].push_back(tempMothers.at(imother));
-      // }
       hev_.nDaughters.push_back( p.numberOfDaughters());
       vector<int> tempDaughters = getDaughterIdx(parts, p);
       hev_.daughterIndex.push_back(tempDaughters);
-      // for(unsigned int idaughter=0; idaughter<tempDaughters.size(); idaughter++){
-      // 	hev_.daughterIndex[hev_.mult].push_back(tempDaughters.at(idaughter));
-      // }
       Double_t eta = fabs(p.eta());
 
       Int_t etabin = 0;

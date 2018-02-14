@@ -97,6 +97,7 @@ process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak4CaloJetSequence_pp_data_cff'
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak3PFJetSequence_pp_data_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak4PFJetSequence_pp_data_cff')
 
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akCs4PFJetSequence_pp_data_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.akSoftDrop4PFJetSequence_pp_data_cff')
 
 process.highPurityTracks = cms.EDFilter("TrackSelector",
@@ -104,11 +105,29 @@ process.highPurityTracks = cms.EDFilter("TrackSelector",
                                         cut = cms.string('quality("highPurity")')
                                         )
 
+process.load('RecoJets.JetProducers.akCs4PFJets_cfi')
+
+#KT jets and rho estimators
+process.load('RecoJets.JetProducers.kt4PFJets_cfi') 
+process.load('RecoHI.HiJetAlgos.hiFJRhoProducer') 
+process.load('RecoHI.HiJetAlgos.hiFJGridEmptyAreaCalculator_cff') 
+process.kt4PFJets.src = cms.InputTag('particleFlow')
+process.kt4PFJets.doAreaFastjet = True
+process.kt4PFJets.jetPtMin      = cms.double(0.0)
+process.kt4PFJets.GhostArea     = cms.double(0.005)
+process.hiFJGridEmptyAreaCalculator.doCentrality = cms.bool(False)
+process.hiFJGridEmptyAreaCalculator.pfCandSource = cms.InputTag("particleFlow")
+
+#CS jets
+process.akCs4PFJets.rho      = cms.InputTag('hiFJGridEmptyAreaCalculator','mapToRhoCorr1Bin')
+process.akCs4PFJets.rhom      = cms.InputTag('hiFJGridEmptyAreaCalculator','mapToRhoMCorr1Bin')
+process.akCs4PFJets.src = cms.InputTag('particleFlow')
+
 #SoftDrop PF jets
 from RecoJets.JetProducers.PFJetParameters_cfi import *
 from RecoJets.JetProducers.AnomalousCellParameters_cfi import *
 process.akSoftDrop4PFJets = cms.EDProducer(
-    "FastjetJetProducer",
+    "SoftDropJetProducer",
     PFJetParameters,
     AnomalousCellParameters,
     jetAlgorithm = cms.string("AntiKt"),
@@ -117,6 +136,7 @@ process.akSoftDrop4PFJets = cms.EDProducer(
     zcut = cms.double(0.1),
     beta = cms.double(0.0),
     R0   = cms.double(0.4),
+    useOnlyCharged = cms.bool(False),
     useExplicitGhosts = cms.bool(True),
     writeCompound = cms.bool(True),
     jetCollInstanceName=cms.string("SubJets")
@@ -126,11 +146,16 @@ process.akSoftDrop5PFJets = process.akSoftDrop4PFJets.clone(rParam = cms.double(
 process.jetSequences = cms.Sequence(
     #process.ak3PFJets +
     #process.ak5PFJets +
+    process.kt4PFJets +
+    process.hiFJRhoProducer +
+    process.hiFJGridEmptyAreaCalculator +
+    process.akCs4PFJets +
     process.akSoftDrop4PFJets +
     process.highPurityTracks +
     #process.ak4CaloJetSequence +
     #process.ak3PFJetSequence +
-    #process.ak4PFJetSequence +
+    process.ak4PFJetSequence +
+    #process.akCs4PFJetSequence +
     process.akSoftDrop4PFJetSequence 
     #process.ak5PFJetSequence
     )
@@ -162,6 +187,13 @@ process.pfcandAnalyzer.pfCandidateLabel = cms.InputTag("particleFlow")
 process.pfcandAnalyzer.doVS = cms.untracked.bool(False)
 process.pfcandAnalyzer.doUEraw_ = cms.untracked.bool(False)
 process.pfcandAnalyzer.genLabel = cms.InputTag("genParticles")
+process.load("HeavyIonsAnalysis.JetAnalysis.pfcandAnalyzerCS_cfi")
+process.pfcandAnalyzerCS.skipCharged = False
+process.pfcandAnalyzerCS.pfPtMin = 0
+process.pfcandAnalyzerCS.pfCandidateLabel = cms.InputTag("particleFlow")
+process.pfcandAnalyzerCS.doVS = cms.untracked.bool(False)
+process.pfcandAnalyzerCS.doUEraw_ = cms.untracked.bool(False)
+process.pfcandAnalyzerCS.genLabel = cms.InputTag("genParticles")
 process.load("HeavyIonsAnalysis.JetAnalysis.hcalNoise_cff")
 
 #####################################################################################
@@ -209,6 +241,9 @@ for idmod in my_id_modules:
 
 #####################################################################################
 
+process.load("HeavyIonsAnalysis.MuonAnalysis.hltMuTree_cfi")
+process.hltMuTree.vertices = cms.InputTag("offlinePrimaryVertices")
+
 #####################
 # tupel and necessary PAT sequences
 #####################
@@ -229,7 +264,9 @@ process.ana_step = cms.Path(process.hltanalysis *
 #                            process.egmGsfElectronIDSequence + #Should be added in the path for VID module
 #                            process.ggHiNtuplizer +
 #                            process.ggHiNtuplizerGED +
-#                            process.pfcandAnalyzer +
+                            process.pfcandAnalyzer +
+		            process.pfcandAnalyzerCS +
+			    process.hltMuTree +
                             process.HiForest 
 #                            process.trackSequencesPP +
 #                            process.tupelPatSequence
@@ -286,6 +323,9 @@ process.akSoftDrop4PFJetAnalyzer.doLifeTimeTaggingExtras = cms.untracked.bool(Tr
 
 process.ak4PFJetAnalyzer.trackSelection = process.akSoftDrop4PFSubjetSecondaryVertexTagInfos.trackSelection
 process.ak4PFJetAnalyzer.trackPairV0Filter = process.akSoftDrop4PFSubjetSecondaryVertexTagInfos.vertexCuts.v0Filter
+
+process.akCs4PFJetAnalyzer.trackSelection = process.akSoftDrop4PFSubjetSecondaryVertexTagInfos.trackSelection
+process.akCs4PFJetAnalyzer.trackPairV0Filter = process.akSoftDrop4PFSubjetSecondaryVertexTagInfos.vertexCuts.v0Filter
 
 process.akSoftDrop4PFJetAnalyzer.trackSelection = process.akSoftDrop4PFSubjetSecondaryVertexTagInfos.trackSelection
 process.akSoftDrop4PFJetAnalyzer.trackPairV0Filter = process.akSoftDrop4PFSubjetSecondaryVertexTagInfos.vertexCuts.v0Filter

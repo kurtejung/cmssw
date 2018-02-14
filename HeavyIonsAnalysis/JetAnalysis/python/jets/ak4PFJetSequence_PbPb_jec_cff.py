@@ -37,7 +37,7 @@ ak4PFJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('ak4
 
 #ak4PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak4HiSignalGenJets'))
 
-ak4PFbTagger = bTaggers("ak4PF",0.4)
+ak4PFbTagger = bTaggers("ak4PF",0.4,False,False)
 
 #create objects locally since they dont load properly otherwise
 #ak4PFmatch = ak4PFbTagger.match
@@ -86,6 +86,16 @@ ak4PFPatJetFlavourIdLegacy = cms.Sequence(ak4PFPatJetPartonAssociationLegacy*ak4
 #Not working with our PU sub
 ak4PFPatJetFlavourAssociation = ak4PFbTagger.PatJetFlavourAssociation
 ak4PFPatJetFlavourId = cms.Sequence(ak4PFPatJetPartons*ak4PFPatJetFlavourAssociation)
+
+#adding the subjet taggers
+#SUBJETDUMMY_ak4PFSubjetImpactParameterTagInfos = ak4PFbTagger.SubjetImpactParameterTagInfos
+#SUBJETDUMMY_ak4PFSubjetJetProbabilityBJetTags = ak4PFbTagger.SubjetJetProbabilityBJetTags
+#SUBJETDUMMY_ak4PFSubjetSecondaryVertexTagInfos = ak4PFbTagger.SubjetSecondaryVertexTagInfos
+#SUBJETDUMMY_ak4PFSubjetSecondaryVertexNegativeTagInfos = ak4PFbTagger.SubjetSecondaryVertexNegativeTagInfos
+#SUBJETDUMMY_ak4PFSubjetJetTracksAssociatorAtVertex = ak4PFbTagger.SubjetJetTracksAssociatorAtVertex
+#SUBJETDUMMY_ak4PFCombinedSubjetSecondaryVertexBJetTags = ak4PFbTagger.CombinedSubjetSecondaryVertexBJetTags
+#SUBJETDUMMY_ak4PFCombinedSubjetSecondaryVertexV2BJetTags = ak4PFbTagger.CombinedSubjetSecondaryVertexV2BJetTags
+#SUBJETDUMMY_ak4PFCombinedSubjetNegativeSecondaryVertexV2BJetTags = ak4PFbTagger.CombinedSubjetNegativeSecondaryVertexV2BJetTags
 
 ak4PFJetBtaggingIP       = cms.Sequence(ak4PFImpactParameterTagInfos *
             (ak4PFTrackCountingHighEffBJetTags +
@@ -206,8 +216,13 @@ ak4PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak4PFpatJet
                                                              genTau3 = cms.InputTag("ak4GenNjettiness","tau3"),
                                                              doGenSym = cms.untracked.bool(False),
                                                              genSym = cms.InputTag("ak4GenJets","sym"),
-                                                             genDroppedBranches = cms.InputTag("ak4GenJets","droppedBranches")
-                                                             )
+                                                             genDroppedBranches = cms.InputTag("ak4GenJets","droppedBranches"),
+							     doExtendedFlavorTagging = cms.untracked.bool(True),
+							     jetFlavourInfos = cms.InputTag("ak4PFPatJetFlavourAssociation"),
+							     subjetFlavourInfos = cms.InputTag("ak4PFPatJetFlavourAssociation","SubJets"),
+							     groomedJets = cms.InputTag("ak4PFJets"),
+							     isPythia6 = cms.untracked.bool(False),
+                                                            )
 
 ak4PFJetSequence_mc = cms.Sequence(
                                                   #ak4PFclean

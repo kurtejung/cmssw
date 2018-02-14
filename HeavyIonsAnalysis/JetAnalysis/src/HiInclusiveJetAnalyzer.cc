@@ -155,11 +155,13 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
 
   genParticleSrc_ = consumes<reco::GenParticleCollection> (iConfig.getUntrackedParameter<edm::InputTag>("genParticles",edm::InputTag("hiGenParticles")));
 
-  if(doSubJets_ && doExtendedFlavorTagging_){
+  if(doExtendedFlavorTagging_){
 	  jetFlavourInfosToken_ = consumes<reco::JetFlavourInfoMatchingCollection>( iConfig.getParameter<edm::InputTag>("jetFlavourInfos") );
-	  subjetFlavourInfosToken_ = mayConsume<reco::JetFlavourInfoMatchingCollection>( iConfig.exists("subjetFlavourInfos") ? iConfig.getParameter<edm::InputTag>("subjetFlavourInfos") : edm::InputTag() );
-	  groomedJetsToken_ = mayConsume<edm::View<reco::Jet> >( iConfig.exists("groomedJets") ? iConfig.getParameter<edm::InputTag>("groomedJets") : edm::InputTag() );
-	  useSubjets_ = ( iConfig.exists("subjetFlavourInfos") && iConfig.exists("groomedJets") );
+	  if(doSubJets_){
+		  subjetFlavourInfosToken_ = consumes<reco::JetFlavourInfoMatchingCollection>( iConfig.exists("subjetFlavourInfos") ? iConfig.getParameter<edm::InputTag>("subjetFlavourInfos") : edm::InputTag() );
+		  groomedJetsToken_ = mayConsume<edm::View<reco::Jet> >( iConfig.exists("groomedJets") ? iConfig.getParameter<edm::InputTag>("groomedJets") : edm::InputTag() );
+		  useSubjets_ = ( iConfig.exists("subjetFlavourInfos") && iConfig.exists("groomedJets") );
+	  }
   }
 
   if(doTrigger_){
@@ -692,6 +694,9 @@ HiInclusiveJetAnalyzer::beginJob() {
     t->Branch("refparton_pt",jets_.refparton_pt,"refparton_pt[nref]/F");
     t->Branch("refparton_flavor",jets_.refparton_flavor,"refparton_flavor[nref]/I");
     t->Branch("refparton_flavorForB",jets_.refparton_flavorForB,"refparton_flavorForB[nref]/I");
+    t->Branch("refparton_ptForB",jets_.refparton_ptForB,"refparton_ptForB[nref]/I");
+    t->Branch("refparton_etaForB",jets_.refparton_etaForB,"refparton_etaForB[nref]/I");
+    t->Branch("refparton_phiForB",jets_.refparton_phiForB,"refparton_phiForB[nref]/I");
 
     if(isPythia6_){
 	    t->Branch("refparton_flavorProcess",jets_.refparton_flavorProcess,"refparton_flavorProcess[nref]/I");			
@@ -1540,7 +1545,7 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
       //begin bdt - TMVA requires you to load in all input vars and names into separate containers (eyeroll)
       float tempVarAddr[] = {jets_.trackMax[ijet]/jtpt, jets_.trackHardSum[ijet]/jtpt, jets_.trackHardN[ijet]/jtpt, jets_.chargedN[ijet]/jtpt, jets_.chargedHardSum[ijet]/jtpt, jets_.chargedHardN[ijet]/jtpt, jets_.photonN[ijet]/jtpt, jets_.photonHardSum[ijet]/jtpt, jets_.photonHardN[ijet]/jtpt, jets_.neutralN[ijet]/jtpt, jets_.hcalSum[ijet]/jtpt, jets_.ecalSum[ijet]/jtpt, jets_.chargedMax[ijet]/jtpt, jets_.chargedSum[ijet], jets_.neutralMax[ijet]/jtpt, jets_.neutralSum[ijet]/jtpt, jets_.photonMax[ijet]/jtpt, jets_.photonSum[ijet]/jtpt, jets_.eSum[ijet]/jtpt, jets_.muSum[ijet]/jtpt};
       for(unsigned int ivar=0; ivar<(sizeof(tempVarAddr)/sizeof(tempVarAddr[0])); ivar++){ varAddr[ivar] = tempVarAddr[ivar]; }
-      jets_.discr_jetID_bdt[jets_.nref] = reader->EvaluateMVA("BDTG");
+      jets_.discr_jetID_bdt[jets_.nref] = -1;//reader->EvaluateMVA("BDTG");
 
       /////////////////////////////////////////////////////////////////
       // Jet core pt^2 discriminant for fake jets
@@ -1654,11 +1659,10 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
       if( (*patjets)[j].hasUserFloat(jetName_+"Njettiness:tau3") )
         jets_.jttau3[jets_.nref] = (*patjets)[j].userFloat(jetName_+"Njettiness:tau3");
 
-      //if( (*patjets)[j].hasUserFloat(jetName_+"Jets:sym") )
-      //  jets_.jtsym[jets_.nref] = (*patjets)[j].userFloat(jetName_+"Jets:sym");
-      //std::cout << "jets_.nref: " << jets_.nref << "  jtsym: " << jets_.jtsym[jets_.nref] << endl;
-      //if( (*patjets)[j].hasUserInt(jetName_+"Jets:droppedBranches") )
-      //  jets_.jtdroppedBranches[jets_.nref] = (*patjets)[j].userInt(jetName_+"Jets:droppedBranches");
+      if( (*patjets)[j].hasUserFloat(jetName_+"Jets:sym") )
+        jets_.jtsym[jets_.nref] = (*patjets)[j].userFloat(jetName_+"Jets:sym");
+      if( (*patjets)[j].hasUserInt(jetName_+"Jets:droppedBranches") )
+        jets_.jtdroppedBranches[jets_.nref] = (*patjets)[j].userInt(jetName_+"Jets:droppedBranches");
 
       if( (*patjets)[j].isPFJet()) {
         jets_.jtPfCHF[jets_.nref] = (*patjets)[j].chargedHadronEnergyFraction();
@@ -1907,7 +1911,26 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
       jets_.reftau2[jets_.nref] = -999.;
       jets_.reftau3[jets_.nref] = -999.;
       
-      jets_.refparton_flavorForB[jets_.nref] = (*patjets)[j].partonFlavour();
+      int partonFlavour = (*patjets)[j].partonFlavour();
+      jets_.refparton_flavorForB[jets_.nref] = partonFlavour;
+      if(abs(partonFlavour)==5 || abs(partonFlavour)==4){
+      	int partonMatchIndex = findMatchedParton(jet.eta(), jet.phi(), 0.6, genparts, abs(partonFlavour));
+      	if(partonMatchIndex>0){
+		jets_.refparton_ptForB[jets_.nref] = (*genparts)[partonMatchIndex].pt();
+		jets_.refparton_etaForB[jets_.nref] = (*genparts)[partonMatchIndex].eta();
+		jets_.refparton_phiForB[jets_.nref] = (*genparts)[partonMatchIndex].phi();
+      	}
+	else{
+		jets_.refparton_ptForB[jets_.nref] = -1; 
+                jets_.refparton_etaForB[jets_.nref] = -1;
+                jets_.refparton_phiForB[jets_.nref] = -1;
+	}
+      }
+      else{
+      	jets_.refparton_ptForB[jets_.nref] = -1;
+	jets_.refparton_etaForB[jets_.nref] = -1;
+	jets_.refparton_phiForB[jets_.nref] = -1;
+      }
       
 	//Matt's flavor production code
       if(isPythia6_){
@@ -2366,9 +2389,9 @@ int HiInclusiveJetAnalyzer::findMatchedParton(float eta, float phi, float maxDr,
 		const GenParticle & genCand = (*genparts)[ i ];
 
 		if(partonFlavor!=0){
-//			cout << " candidate " << i << " pdg: "<< genCand.pdgId() << " status: "<< genCand.status() << " dr: "<< deltaR(eta,phi,genCand.eta(),genCand.phi()) << " flavorToMatch: "<< partonFlavor << endl;
+			//cout << " candidate " << i << " pdg: "<< genCand.pdgId() << " status: "<< genCand.status() << " dr: "<< deltaR(eta,phi,genCand.eta(),genCand.phi()) << " flavorToMatch: "<< partonFlavor << endl;
 			if(abs(genCand.pdgId())!=partonFlavor) continue;
-			if(genCand.status()<20) continue;
+			//if(!isPythia6 && genCand.status()<20) continue;
 		}
 		double dr = deltaR(eta,phi,genCand.eta(),genCand.phi());
 		if(dr>maxDr) continue;

@@ -113,13 +113,13 @@ class bTaggers:
 		self.SubjetJetProbabilityBJetTags.tagInfos = cms.VInputTag(cms.InputTag(jetname+"SubjetImpactParameterTagInfos"))
 		self.SubjetSecondaryVertexTagInfos = secondaryVertexTagInfos.clone() 
 		self.SubjetSecondaryVertexTagInfos.trackIPTagInfos = cms.InputTag(jetname+'SubjetImpactParameterTagInfos')
-		self.SubjetSecondaryVertexTagInfos.fatJets = cms.InputTag('ak4PFJets')
+		self.SubjetSecondaryVertexTagInfos.fatJets = cms.InputTag(jetname+'Jets')
 		self.SubjetSecondaryVertexTagInfos.groomedFatJets = cms.InputTag(jetname+'Jets')
 		self.SubjetSecondaryVertexTagInfos.useSVClustering = cms.bool(True)
 		self.SubjetSecondaryVertexTagInfos.useExternalSV = cms.bool(True)
 		self.SubjetSecondaryVertexTagInfos.jetAlgorithm = cms.string('AntiKt')
 		self.SubjetSecondaryVertexTagInfos.useSVMomentum = cms.bool(True)
-		self.SubjetSecondaryVertexTagInfos.rParam = cms.double(0.4)
+		self.SubjetSecondaryVertexTagInfos.rParam = cms.double(rParam)
 		self.SubjetSecondaryVertexTagInfos.extSVCollection = cms.InputTag('inclusiveSecondaryVertices')
 		self.SubjetSecondaryVertexTagInfos.vertexCuts.maxDeltaRToJetAxis = cms.double(0.1)
 
@@ -128,7 +128,7 @@ class bTaggers:
 		self.SubjetSecondaryVertexNegativeTagInfos.vertexCuts.distVal2dMax = -0.01
 		self.SubjetSecondaryVertexNegativeTagInfos.vertexCuts.distSig2dMin = -99999.9
 		self.SubjetSecondaryVertexNegativeTagInfos.vertexCuts.distSig2dMax = -3.0
-		self.SubjetSecondaryVertexNegativeTagInfos.vertexCuts.maxDeltaRToJetAxis = -0.5
+		self.SubjetSecondaryVertexNegativeTagInfos.vertexCuts.maxDeltaRToJetAxis = -0.1
 
 		self.SubjetJetTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorExplicit",
 			jets = cms.InputTag(jetname+'Jets','SubJets')
@@ -216,9 +216,11 @@ class bTaggers:
             )
 
 	if doSubjets:
-		self.PatJetFlavourAssociation.jets="ak4PFJets"
+		self.PatJetFlavourAssociation.jets=jetname+"Jets"
 		self.PatJetFlavourAssociation.groomedJets = cms.InputTag(jetname+'Jets')
 		self.PatJetFlavourAssociation.subjets = cms.InputTag(jetname+'Jets', 'SubJets')
+		self.PatJetFlavourAssociation.redoSubtraction = cms.bool(True)
+		self.PatJetFlavourAssociation.doSubjets = cms.bool(True)
 
         self.PatJetFlavourId               = cms.Sequence(self.PatJetPartons*self.PatJetFlavourAssociation)
         #self.match   = patJetGenJetMatch.clone(

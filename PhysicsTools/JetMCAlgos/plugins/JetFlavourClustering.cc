@@ -293,6 +293,9 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<edm::View<reco::Jet> > unsubtractedJets;
    edm::Handle<edm::View<reco::Jet> > groomedJets;
    edm::Handle<edm::View<reco::Jet> > subjets;
+
+ //  std::cout << "within produce... using subjets? " << useSubjets_ << " redoing subtraction? " << redoSubtraction_ << std::endl;
+
    if( useSubjets_ )
    {
      if(redoSubtraction_) iEvent.getByToken(unsubtractedJetsToken_, unsubtractedJets);
@@ -302,7 +305,9 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    else{
 	if(redoSubtraction_) iEvent.getByToken(unsubtractedJetsToken_, jets);
-   	else iEvent.getByToken(jetsToken_, jets);
+   	else{
+		iEvent.getByToken(jetsToken_, jets);
+	}
    }
 
    edm::Handle<reco::GenParticleRefVector> bHadrons;
@@ -326,8 +331,9 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // vector of constituents for reclustering jets and "ghosts"
    std::vector<fastjet::PseudoJet> fjInputs;
    // loop over all input jets and collect all their constituents
-   edm::View<reco::Jet>::const_iterator it = unsubtractedJets->begin();
-   edm::View<reco::Jet>::const_iterator itEnd = unsubtractedJets->end();
+   edm::View<reco::Jet>::const_iterator it, itEnd;
+   if(redoSubtraction_){ it = unsubtractedJets->begin(); itEnd = unsubtractedJets->end(); }
+   else{ it = jets->begin(); itEnd = jets->end(); }
    for( ; it != itEnd; ++it)
    {
      if(it->pt() < jetPtMin_) continue;
@@ -346,7 +352,7 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    double ghost_EtaMax = 5.0;
-   double csRParam_ = 0.4;
+   double csRParam_ = rParam_;
    unsigned int minSeed_ = 14327;
    std::vector<int> seeds(2);
    unsigned int runNum_uint = static_cast <unsigned int> (iEvent.id().run());

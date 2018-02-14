@@ -37,7 +37,7 @@ akPuSoftDropZ05B152PFJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = c
 
 #akPuSoftDropZ05B152PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak2HiCleanedGenJets'))
 
-akPuSoftDropZ05B152PFbTagger = bTaggers("akPuSoftDropZ05B152PF",0.2)
+akPuSoftDropZ05B152PFbTagger = bTaggers("akPuSoftDropZ05B152PF",0.2,False,True)
 
 #create objects locally since they dont load properly otherwise
 #akPuSoftDropZ05B152PFmatch = akPuSoftDropZ05B152PFbTagger.match
@@ -83,9 +83,19 @@ akPuSoftDropZ05B152PFSoftPFMuonByPtBJetTags = akPuSoftDropZ05B152PFbTagger.SoftP
 akPuSoftDropZ05B152PFNegativeSoftPFMuonByPtBJetTags = akPuSoftDropZ05B152PFbTagger.NegativeSoftPFMuonByPtBJetTags
 akPuSoftDropZ05B152PFPositiveSoftPFMuonByPtBJetTags = akPuSoftDropZ05B152PFbTagger.PositiveSoftPFMuonByPtBJetTags
 akPuSoftDropZ05B152PFPatJetFlavourIdLegacy = cms.Sequence(akPuSoftDropZ05B152PFPatJetPartonAssociationLegacy*akPuSoftDropZ05B152PFPatJetFlavourAssociationLegacy)
-#Not working with our PU sub, but keep it here for reference
-#akPuSoftDropZ05B152PFPatJetFlavourAssociation = akPuSoftDropZ05B152PFbTagger.PatJetFlavourAssociation
-#akPuSoftDropZ05B152PFPatJetFlavourId = cms.Sequence(akPuSoftDropZ05B152PFPatJetPartons*akPuSoftDropZ05B152PFPatJetFlavourAssociation)
+#Not working with our PU sub
+akPuSoftDropZ05B152PFPatJetFlavourAssociation = akPuSoftDropZ05B152PFbTagger.PatJetFlavourAssociation
+akPuSoftDropZ05B152PFPatJetFlavourId = cms.Sequence(akPuSoftDropZ05B152PFPatJetPartons*akPuSoftDropZ05B152PFPatJetFlavourAssociation)
+
+#adding the subjet taggers
+akPuSoftDropZ05B152PFSubjetImpactParameterTagInfos = akPuSoftDropZ05B152PFbTagger.SubjetImpactParameterTagInfos
+akPuSoftDropZ05B152PFSubjetJetProbabilityBJetTags = akPuSoftDropZ05B152PFbTagger.SubjetJetProbabilityBJetTags
+akPuSoftDropZ05B152PFSubjetSecondaryVertexTagInfos = akPuSoftDropZ05B152PFbTagger.SubjetSecondaryVertexTagInfos
+akPuSoftDropZ05B152PFSubjetSecondaryVertexNegativeTagInfos = akPuSoftDropZ05B152PFbTagger.SubjetSecondaryVertexNegativeTagInfos
+akPuSoftDropZ05B152PFSubjetJetTracksAssociatorAtVertex = akPuSoftDropZ05B152PFbTagger.SubjetJetTracksAssociatorAtVertex
+akPuSoftDropZ05B152PFCombinedSubjetSecondaryVertexBJetTags = akPuSoftDropZ05B152PFbTagger.CombinedSubjetSecondaryVertexBJetTags
+akPuSoftDropZ05B152PFCombinedSubjetSecondaryVertexV2BJetTags = akPuSoftDropZ05B152PFbTagger.CombinedSubjetSecondaryVertexV2BJetTags
+akPuSoftDropZ05B152PFCombinedSubjetNegativeSecondaryVertexV2BJetTags = akPuSoftDropZ05B152PFbTagger.CombinedSubjetNegativeSecondaryVertexV2BJetTags
 
 akPuSoftDropZ05B152PFJetBtaggingIP       = cms.Sequence(akPuSoftDropZ05B152PFImpactParameterTagInfos *
             (akPuSoftDropZ05B152PFTrackCountingHighEffBJetTags +
@@ -139,10 +149,11 @@ akPuSoftDropZ05B152PFpatJetsWithBtagging = patJets.clone(jetSource = cms.InputTa
         genJetMatch          = cms.InputTag("akPuSoftDropZ05B152PFmatch"),
         genPartonMatch       = cms.InputTag("akPuSoftDropZ05B152PFparton"),
         jetCorrFactorsSource = cms.VInputTag(cms.InputTag("akPuSoftDropZ05B152PFcorr")),
-        JetPartonMapSource   = cms.InputTag("akPuSoftDropZ05B152PFPatJetFlavourAssociationLegacy"),
+        #JetPartonMapSource   = cms.InputTag("akPuSoftDropZ05B152PFPatJetFlavourAssociationLegacy"),
+        JetPartonMapSource   = cms.InputTag("akPuSoftDropZ05B152PFPatJetFlavourAssociation"),
 	JetFlavourInfoSource   = cms.InputTag("akPuSoftDropZ05B152PFPatJetFlavourAssociation"),
         trackAssociationSource = cms.InputTag("akPuSoftDropZ05B152PFJetTracksAssociatorAtVertex"),
-	useLegacyJetMCFlavour = True,
+	useLegacyJetMCFlavour = False,
         discriminatorSources = cms.VInputTag(cms.InputTag("akPuSoftDropZ05B152PFSimpleSecondaryVertexHighEffBJetTags"),
             cms.InputTag("akPuSoftDropZ05B152PFSimpleSecondaryVertexHighPurBJetTags"),
             cms.InputTag("akPuSoftDropZ05B152PFCombinedSecondaryVertexBJetTags"),
@@ -205,8 +216,13 @@ akPuSoftDropZ05B152PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.Input
                                                              genTau3 = cms.InputTag("akSoftDropZ05B152GenNjettiness","tau3"),
                                                              doGenSym = cms.untracked.bool(False),
                                                              genSym = cms.InputTag("akSoftDropZ05B152GenJets","sym"),
-                                                             genDroppedBranches = cms.InputTag("akSoftDropZ05B152GenJets","droppedBranches")
-                                                             )
+                                                             genDroppedBranches = cms.InputTag("akSoftDropZ05B152GenJets","droppedBranches"),
+							     doExtendedFlavorTagging = cms.untracked.bool(True),
+							     jetFlavourInfos = cms.InputTag("akPuSoftDropZ05B152PFPatJetFlavourAssociation"),
+							     subjetFlavourInfos = cms.InputTag("akPuSoftDropZ05B152PFPatJetFlavourAssociation","SubJets"),
+							     groomedJets = cms.InputTag("akPuSoftDropZ05B152PFJets"),
+							     isPythia6 = cms.untracked.bool(False),
+                                                            )
 
 akPuSoftDropZ05B152PFJetSequence_mc = cms.Sequence(
                                                   #akPuSoftDropZ05B152PFclean
@@ -221,9 +237,9 @@ akPuSoftDropZ05B152PFJetSequence_mc = cms.Sequence(
                                                   *
                                                   #akPuSoftDropZ05B152PFJetID
                                                   #*
-                                                  akPuSoftDropZ05B152PFPatJetFlavourIdLegacy
+                                                  #akPuSoftDropZ05B152PFPatJetFlavourIdLegacy  # works for PbPb
                                                   #*
-			                          #akPuSoftDropZ05B152PFPatJetFlavourId  # Use legacy algo till PU implemented
+			                          akPuSoftDropZ05B152PFPatJetFlavourId  # doesn't work for PbPb yet
                                                   *
                                                   akPuSoftDropZ05B152PFJetTracksAssociatorAtVertex
                                                   *

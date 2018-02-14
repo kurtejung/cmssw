@@ -27,15 +27,16 @@ process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
         #"root://eoscms.cern.ch//eos/cms/store/cmst3/group/hintt/CMSSW_7_5_8_patch2/TTbar/RECO/Events_1.root"
-                           #'file:/afs/cern.ch/work/k/kjung/ppMC_pythia6_bjet100_pp502_AODSIM.root')
-                           '/store/himc/HINppWinter16DR/Pythia6_bJet100_pp502/AODSIM/75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/30000/06988FB5-3A0E-E611-9100-02163E011808.root')
-			   #'/store/user/gsfs/Pythia8_Dijet80_pp_CUETP8M1_5020GeV/RECO__201711004/171004_122752/0000/step3_pp_RAW2DIGI_L1Reco_RECO_101.root')
+                           'file:step2_DIGI_L1_DIGI2RAW_HLT_RAW2DIGI_L1Reco_RECO_oldVtxParams.root')
+                           #'/store/himc/HINppWinter16DR/Pythia6_bJet100_pp502/AODSIM/75X_mcRun2_asymptotic_ppAt5TeV_v3-v1/30000/06988FB5-3A0E-E611-9100-02163E011808.root')
+			#'/store/user/kjung/Pythia8_ppMC_DigiReco_QCDJet_MuFiltered_loose2/ppMC_QCDJet_muFiltered_loose2_pt5GeV_pthat170/ppMC_QCDJet_muFiltered_loose2_pt5GeV_pthat170/crab_ppMC_QCDJet_muFiltered_loose2_pt5GeV_pthat170_DigiReco_muFiltered_loose2/171216_034802/0000/step2_DIGI_L1_DIGI2RAW_HLT_RAW2DIGI_L1Reco_RECO_10.root')
+			#'/store/user/gsfs/Pythia8_Dijet80_pp_CUETP8M1_5020GeV/RECO__201711004/171004_122752/0000/step3_pp_RAW2DIGI_L1Reco_RECO_101.root')
 #			   eventsToProcess = cms.untracked.VEventRange('1:42101','1:52848')
 )
 
 # Number of events we want to process, -1 = all events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000))
+    input = cms.untracked.int32(-1))
 
 #####################################################################################
 # Load Global Tag, Geometry, etc.
@@ -58,7 +59,7 @@ process = overrideJEC_pp5020(process)
 
 from CondCore.DBCommon.CondDBSetup_cfi import *
 process.jpTagConds = cms.ESSource("PoolDBESSource", CondDBSetup,
-                connect = cms.string('sqlite_file:JPcalib_MC75X_ppqcdAll.db'),
+                connect = cms.string('sqlite_file:btagnew_pythia8MC75X_recalib2017.db'),
                 toGet = cms.VPSet(         # overide Global Tag use EcalTBWeights_EBEE_offline
                         cms.PSet(
                                 record = cms.string('BTagTrackProbability2DRcd') ,
@@ -114,8 +115,8 @@ process.load('HeavyIonsAnalysis.JetAnalysis.HiGenAnalyzer_cfi')
 process.HiGenParticleAna.genParticleSrc = cms.untracked.InputTag("genParticles")
 process.HiGenParticleAna.doHI = False
 process.HiGenParticleAna.stableOnly = False
-process.HiGenParticleAna.etaMax = cms.untracked.double(999)
-process.HiGenParticleAna.ptMin = cms.untracked.double(0)
+process.HiGenParticleAna.etaMax = cms.untracked.double(9e99)
+process.HiGenParticleAna.ptMin = cms.untracked.double(-1)
 process.load('HeavyIonsAnalysis.EventAnalysis.runanalyzer_cff')
 process.load("HeavyIonsAnalysis.JetAnalysis.pfcandAnalyzer_pp_cfi")
 process.pfcandAnalyzer.skipCharged = False
@@ -179,6 +180,8 @@ process.load("HeavyIonsAnalysis.VectorBosonAnalysis.tupelSequence_pp_mc_cff")
 
 #####################################################################################
 
+process.load("HeavyIonsAnalysis.MuonAnalysis.hltMuTree_cfi")
+process.hltMuTree.vertices = cms.InputTag("offlinePrimaryVertices")
 
 ####B-TAGGING#####
 
@@ -194,9 +197,9 @@ process.CSVscikitTags.weightFile=cms.FileInPath('HeavyIonsAnalysis/JetAnalysis/d
 #########################
 # Main analysis list
 #########################
-process.ana_step = cms.Path(#process.hltanalysis *
+process.ana_step = cms.Path(process.hltanalysis *
                             process.hiEvtAnalyzer *
-                            #process.HiGenParticleAna*
+                            process.HiGenParticleAna*
                             process.jetSequences +
                             #process.egmGsfElectronIDSequence + #Should be added in the path for VID module
                             #process.ggHiNtuplizer +
@@ -204,6 +207,7 @@ process.ana_step = cms.Path(#process.hltanalysis *
 #                            process.pfcandAnalyzer +
                             process.HiForest +
 #			    process.trackSequencesPP +
+			    process.hltMuTree +
                             process.runAnalyzer 
   #                          process.tupelPatSequence
 )
@@ -250,15 +254,30 @@ process.pVertexFilterCutEandG = cms.Path(process.pileupVertexFilterCutEandG)
 process.pAna = cms.EndPath(process.skimanalysis)
 
 # Customization
+process.ak4PFpatJetsWithBtagging.getJetMCFlavour = cms.bool(False)
 process.akSoftDrop4PFpatJetsWithBtagging.getJetMCFlavour = cms.bool(False)
-#process.akSoftDrop4PFz01bm1patJetsWithBtagging.getJetMCFlavour = cms.bool(False)
+process.akSoftDrop10PFpatJetsWithBtagging.getJetMCFlavour = cms.bool(False)
 #process.akSoftDrop4PFz01b1patJetsWithBtagging.getJetMCFlavour = cms.bool(False)
 #process.akSoftDrop4PFz005bm1patJetsWithBtagging.getJetMCFlavour = cms.bool(False)
 #process.akSoftDrop4PFz005bm2patJetsWithBtagging.getJetMCFlavour = cms.bool(False)
 
+process.ak4PFJetAnalyzer.doLifeTimeTaggingExtras = cms.untracked.bool(True)
+process.ak4PFPatJetFlavourAssociation.groomedJets = cms.InputTag("akSoftDrop4PFJets")
+process.ak4PFPatJetFlavourAssociation.doSubjets = cms.bool(True)
+process.ak4PFJetAnalyzer.trackSelection = process.akSoftDrop4PFSubjetSecondaryVertexTagInfos.trackSelection
+process.ak4PFJetAnalyzer.trackPairV0Filter = process.akSoftDrop4PFSubjetSecondaryVertexTagInfos.vertexCuts.v0Filter
+
+process.akSoftDrop4PFPatJetFlavourAssociation.redoSubtraction = cms.bool(False)
+process.akSoftDrop4PFPatJetFlavourAssociation.jets = cms.InputTag("ak4PFJets")
+process.akSoftDrop4PFSubjetSecondaryVertexNegativeTagInfos.fatJets = cms.InputTag("ak4PFJets")
+process.akSoftDrop4PFSubjetSecondaryVertexTagInfos.fatJets = cms.InputTag("ak4PFJets")
 process.akSoftDrop4PFJetAnalyzer.doLifeTimeTaggingExtras = cms.untracked.bool(True)
 process.akSoftDrop4PFJetAnalyzer.trackSelection = process.akSoftDrop4PFSubjetSecondaryVertexTagInfos.trackSelection
 process.akSoftDrop4PFJetAnalyzer.trackPairV0Filter = process.akSoftDrop4PFSubjetSecondaryVertexTagInfos.vertexCuts.v0Filter
+
+process.akSoftDrop10PFJetAnalyzer.doLifeTimeTaggingExtras = cms.untracked.bool(True)
+process.akSoftDrop10PFJetAnalyzer.trackSelection = process.akSoftDrop4PFSubjetSecondaryVertexTagInfos.trackSelection
+process.akSoftDrop10PFJetAnalyzer.trackPairV0Filter = process.akSoftDrop4PFSubjetSecondaryVertexTagInfos.vertexCuts.v0Filter
 
 #process.akSoftDrop4PFz01bm1JetAnalyzer.trackSelection = process.akSoftDrop4PFJetAnalyzer.trackSelection
 #process.akSoftDrop4PFz01bm1JetAnalyzer.trackPairV0Filter = process.akSoftDrop4PFJetAnalyzer.trackPairV0Filter
@@ -272,6 +291,8 @@ process.akSoftDrop4PFJetAnalyzer.trackPairV0Filter = process.akSoftDrop4PFSubjet
 #process.akSoftDrop4PFJetBtaggingSV *= process.akSoftDrop4PFSubjetJetTracksAssociatorAtVertex+process.akSoftDrop4PFSubjetImpactParameterTagInfos+process.akSoftDrop4PFSubjetJetProbabilityBJetTags+process.akSoftDrop4PFSubjetSecondaryVertexTagInfos+process.akSoftDrop4PFSubjetSecondaryVertexNegativeTagInfos+process.akSoftDrop4PFCombinedSubjetSecondaryVertexV2BJetTags+process.akSoftDrop4PFCombinedSubjetSecondaryVertexV2BJetTags+process.akSoftDrop4PFCombinedSubjetNegativeSecondaryVertexV2BJetTags
 
 process.akSoftDrop4PFJetBtaggingSV *= process.akSoftDrop4PFSubjetJetTracksAssociatorAtVertex+process.akSoftDrop4PFSubjetImpactParameterTagInfos+process.akSoftDrop4PFSubjetJetProbabilityBJetTags+process.akSoftDrop4PFSubjetSecondaryVertexTagInfos+process.akSoftDrop4PFSubjetSecondaryVertexNegativeTagInfos+process.akSoftDrop4PFCombinedSubjetSecondaryVertexBJetTags+process.akSoftDrop4PFCombinedSubjetSecondaryVertexV2BJetTags+process.akSoftDrop4PFCombinedSubjetNegativeSecondaryVertexV2BJetTags
+
+process.akSoftDrop10PFJetBtaggingSV *= process.akSoftDrop10PFSubjetJetTracksAssociatorAtVertex+process.akSoftDrop10PFSubjetImpactParameterTagInfos+process.akSoftDrop10PFSubjetJetProbabilityBJetTags+process.akSoftDrop10PFSubjetSecondaryVertexTagInfos+process.akSoftDrop10PFSubjetSecondaryVertexNegativeTagInfos+process.akSoftDrop10PFCombinedSubjetSecondaryVertexBJetTags+process.akSoftDrop10PFCombinedSubjetSecondaryVertexV2BJetTags+process.akSoftDrop10PFCombinedSubjetNegativeSecondaryVertexV2BJetTags
 
 #process.akSoftDrop4PFz01bm1JetBtaggingSV *= process.akSoftDrop4PFz01bm1SubjetJetTracksAssociatorAtVertex+process.akSoftDrop4PFz01bm1SubjetImpactParameterTagInfos+process.akSoftDrop4PFz01bm1SubjetJetProbabilityBJetTags+process.akSoftDrop4PFz01bm1SubjetSecondaryVertexTagInfos+process.akSoftDrop4PFz01bm1CombinedSubjetSecondaryVertexBJetTags+process.akSoftDrop4PFz01bm1CombinedSubjetSecondaryVertexV2BJetTags
 #process.akSoftDrop4PFz01b1JetBtaggingSV *= process.akSoftDrop4PFz01b1SubjetJetTracksAssociatorAtVertex+process.akSoftDrop4PFz01b1SubjetImpactParameterTagInfos+process.akSoftDrop4PFz01b1SubjetJetProbabilityBJetTags+process.akSoftDrop4PFz01b1SubjetSecondaryVertexTagInfos+process.akSoftDrop4PFz01b1CombinedSubjetSecondaryVertexBJetTags+process.akSoftDrop4PFz01b1CombinedSubjetSecondaryVertexV2BJetTags

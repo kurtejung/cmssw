@@ -37,7 +37,7 @@ akCsSoftDrop4PFJets = cms.EDProducer(
     writeCompound = cms.bool(True),
     jetCollInstanceName=cms.string("SubJets")
 )
-akSoftDrop4PFJets = cms.EDProducer("FastjetJetProducer",
+akSoftDrop4PFJets = cms.EDProducer("SoftDropJetProducer",
     PFJetParameters,
     AnomalousCellParameters,
     jetAlgorithm = cms.string("AntiKt"),

@@ -598,6 +598,9 @@ private:
     float refparton_pt[MAXJETS];
     int refparton_flavor[MAXJETS];
     int refparton_flavorForB[MAXJETS];
+    float refparton_ptForB[MAXJETS];
+    float refparton_etaForB[MAXJETS];
+    float refparton_phiForB[MAXJETS];
     int refnCands[MAXJETS];
     int refnChCands[MAXJETS];
     int refnNeCands[MAXJETS];

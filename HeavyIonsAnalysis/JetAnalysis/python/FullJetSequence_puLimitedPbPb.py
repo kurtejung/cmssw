@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from HeavyIonsAnalysis.JetAnalysis.jets.HiReRecoJets_HI_cff import PFTowers, kt4PFJets, hiFJRhoProducer, hiFJGridEmptyAreaCalculator, akPu2CaloJets, akPu2PFJets, akCs2PFJets, akPu3CaloJets, akPu3PFJets, akCs3PFJets, akPu4CaloJets, akPu4PFJets, akCs4PFJets, akCsSoftDrop4PFJets, akCsSoftDropZ05B154PFJets
+from HeavyIonsAnalysis.JetAnalysis.jets.HiReRecoJets_HI_cff import PFTowers, kt4PFJets, hiFJRhoProducer, hiFJGridEmptyAreaCalculator, akPu2CaloJets, akPu2PFJets, akCs2PFJets, akPu3CaloJets, akPu3PFJets, akCs3PFJets, akPu4CaloJets, akPu4PFJets, akCs4PFJets, akCsSoftDrop4PFJets, akCsSoftDropZ05B154PFJets, ak4PFJets
 
 #jet analyzers
 from HeavyIonsAnalysis.JetAnalysis.jets.akPu2CaloJetSequence_PbPb_mc_cff import *
@@ -12,6 +12,7 @@ from HeavyIonsAnalysis.JetAnalysis.jets.akCs3PFJetSequence_PbPb_mc_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.akPu4CaloJetSequence_PbPb_mc_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.akPu4PFJetSequence_PbPb_mc_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.akCs4PFJetSequence_PbPb_mc_cff import *
+from HeavyIonsAnalysis.JetAnalysis.jets.ak4PFJetSequence_PbPb_mc_cff import *
 
 from HeavyIonsAnalysis.JetAnalysis.jets.akCsSoftDropZ05B154PFJetSequence_PbPb_mc_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.akCsFilter4PFJetSequence_PbPb_mc_cff import *
@@ -66,7 +67,7 @@ jetSequences = cms.Sequence(
     #akVs5PFJets +
     #akCs5PFJets +
 
-    akCsFilter4PFJets +
+    #akCsFilter4PFJets +
     #akCsFilter5PFJets +
     akCsSoftDrop4PFJets +
     #akCsSoftDrop5PFJets +
@@ -89,7 +90,7 @@ jetSequences = cms.Sequence(
     #akVs4CaloJetSequence +
     #akVs4PFJetSequence +
     #akPu4PFJetSequence +
-#    akCs4PFJetSequence +
+    akCs4PFJetSequence +
 
     #akPu5CaloJetSequence +
     #akVs5CaloJetSequence +
