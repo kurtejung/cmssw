@@ -17,6 +17,8 @@
 #include <limits>
 #include <cmath>
 
+#include "TRandom3.h"
+
 using namespace std;
 using namespace reco;
 using namespace edm;
@@ -249,6 +251,8 @@ void SoftDropJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup con
   lDroppedBranches.clear();
   lDroppedSym.clear();
   
+  //TRandom3 randGen(0);
+  //std::cout << "WARNING! Dropping 3.9% of all tracks to test tracking selections" << std::endl;
   static const reco::PFCandidate dummySinceTranslateIsNotStatic;
   // clusterSequence_coll clusterSequences;
   // jetDefinition_coll jetDefinitions;
@@ -264,15 +268,16 @@ void SoftDropJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup con
           ipart != particles.end(); ++ipart ) {
       auto orig = inputs_[(*ipart).user_index()];
       auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(orig->pdgId());
-      
+     
       bool passed  = false;
+      //double random = randGen.Rndm();
       if(useOnlyCharged_) {
         if(id==1) passed = true;
       } else
         passed = true;
-      //if(passed) std::cout << "id: " << id << " pdfId: " << orig->pdgId() << std::endl;
-      if(passed) inputsRecluster.push_back(*ipart);
-    }
+       
+	if(passed /*&& random > 0.039*/) inputsRecluster.push_back(*ipart); //drop 3.9% of tracks to see how subjets get affected
+     }
     //    std::cout << "inputsRecluster.size() " << inputsRecluster.size() << std::endl;
 
     //recluster with selected particles

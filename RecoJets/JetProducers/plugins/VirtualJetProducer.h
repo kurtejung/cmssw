@@ -28,7 +28,6 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
-
 class dso_hidden VirtualJetProducer : public edm::stream::EDProducer<>
 {
 protected:

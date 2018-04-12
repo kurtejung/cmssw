@@ -477,6 +477,7 @@ void VirtualJetProducer::inputTowers( )
       fjInputs_.push_back(fastjet::PseudoJet(input->px(),input->py(),input->pz(),
 					     input->energy()));
     }
+    reco::PFCandidate tmp;
     fjInputs_.back().set_user_index(i - inBegin);
   }
 
